@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lottery-czj.iml" filepath="$PROJECT_DIR$/.idea/modules/lottery-czj.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lottery-czj_main.iml" filepath="$PROJECT_DIR$/.idea/modules/lottery-czj_main.iml" group="lottery-czj" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lottery-czj_test.iml" filepath="$PROJECT_DIR$/.idea/modules/lottery-czj_test.iml" group="lottery-czj" />
+    </modules>
+  </component>
+</project>
