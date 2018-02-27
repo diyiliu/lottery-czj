@@ -101,11 +101,11 @@ public class WebContainer {
                 boolean flag = (boolean) rsMap.get("success");
                 if (flag){
                     String msg = JacksonUtil.toJson(rsMap.get("annLoginList")) ;
-                    logger.info("登录成功[{}]...", msg);
+                    logger.info("登录成功{}...", msg);
                     return true;
                 }else {
                     String message = (String) rsMap.get("message");
-                    logger.error("登录失败!{}", message);
+                    logger.error("登录失败[{}]!", message);
                 }
             } catch (IOException e) {
                 e.printStackTrace();

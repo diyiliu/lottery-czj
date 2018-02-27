@@ -183,6 +183,8 @@ public class LoginUI extends javax.swing.JFrame {
         webContainer = SpringUtil.getBean("webContainer");
         reloadCheckCode();
 
+        tfUsername.setText("qinyupei");
+        tfPassword.setText("ws84207ws");
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
