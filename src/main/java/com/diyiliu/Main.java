@@ -1,5 +1,7 @@
 package com.diyiliu;
 
+import com.diyiliu.support.util.SpringUtil;
+
 /**
  * Description: Main
  * Author: DIYILIU
@@ -9,6 +11,6 @@ public class Main {
 
     public static void main(String[] args) {
 
-
+        SpringUtil.init();
     }
 }
