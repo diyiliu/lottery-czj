@@ -114,4 +114,46 @@ public class WebContainer {
 
         return false;
     }
+
+
+    /**
+     * 查询余额
+     *
+     * @return
+     */
+    public String getBalance(){
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        List<String> cookies = new ArrayList();
+        cookies.add(cookie);
+
+        headers.put(HttpHeaders.COOKIE, cookies);
+        headers.add(HttpHeaders.USER_AGENT, Constant.USER_AGENT);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map paramMap = new HashMap();
+        paramMap.put("pNetwork", "MAIN_WALLET");
+
+        HttpEntity<String> requestEntity = new HttpEntity(paramMap, headers);
+        ResponseEntity<String> responseEntity = restTemplate.postForEntity(Constant.CZJ_QUERY_BALANCE, requestEntity, String.class);
+
+        String result = responseEntity.getBody();
+        if (StringUtils.isNotEmpty(result)){
+            try {
+                Map rsMap = JacksonUtil.toObject(result, HashMap.class);
+                boolean flag = (boolean) rsMap.get("success");
+                if (flag){
+                    String balance = (String) rsMap.get("balance");
+                    return balance;
+                }else {
+                    String message = (String) rsMap.get("message");
+                    logger.error("查询余额失败[{}]!", message);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return "";
+    }
 }

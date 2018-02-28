@@ -4,6 +4,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
@@ -12,6 +13,8 @@ import java.util.Map;
  * Author: DIYILIU
  * Update: 2016-03-18 10:07
  */
+
+@Component
 public class SpringUtil implements ApplicationContextAware {
 
     /**

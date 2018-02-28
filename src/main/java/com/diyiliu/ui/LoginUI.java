@@ -6,6 +6,7 @@
 package com.diyiliu.ui;
 
 
+import com.diyiliu.support.config.Constant;
 import com.diyiliu.support.site.WebContainer;
 import com.diyiliu.support.util.SpringUtil;
 import com.diyiliu.support.util.UIHelper;
@@ -70,9 +71,17 @@ public class LoginUI extends javax.swing.JFrame {
             String code = tfCode.getText().trim();
 
             boolean success = webContainer.loginIn(username, password, code);
-            if (success){
+            if (success) {
                 this.dispose();
-            }else {
+
+                java.awt.EventQueue.invokeLater(() ->
+                        {
+                            MainUI mainUI = new MainUI(username);
+                            mainUI.setVisible(true);
+                        }
+                );
+
+            } else {
                 logger.error("登录失败!");
             }
         });
@@ -185,16 +194,8 @@ public class LoginUI extends javax.swing.JFrame {
 
         tfUsername.setText("qinyupei");
         tfPassword.setText("ws84207ws");
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+        UIHelper.beautify(Constant.LOOK_STYLE);
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() ->
