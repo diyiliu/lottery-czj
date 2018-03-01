@@ -1,13 +1,17 @@
 package com.diyiliu.ui;
 
+import com.diyiliu.support.cache.ICache;
 import com.diyiliu.support.config.Constant;
 import com.diyiliu.support.site.WebContainer;
 import com.diyiliu.support.util.JacksonUtil;
-import com.diyiliu.support.util.SpringUtil;
 import com.diyiliu.support.util.UIHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,7 +22,11 @@ import java.util.Map;
 public class MainUI extends javax.swing.JFrame {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @Resource
     private WebContainer webContainer;
+
+    @Resource
+    private ICache agentCacheProvider;
 
     /**
      * Creates new form MainUI
@@ -46,7 +54,6 @@ public class MainUI extends javax.swing.JFrame {
         lbUser.setText(username);
         lbMoney.setText("-");
 
-        webContainer = SpringUtil.getBean("webContainer");
         java.awt.EventQueue.invokeLater(() -> {
             String balance = webContainer.getBalance();
 
@@ -172,12 +179,10 @@ public class MainUI extends javax.swing.JFrame {
         );
 
         lbPlan.setText("计划追号：");
-
-        tfPlan.setText("01 02 03 04 05");
-
+        tfPlan.setText("");
         lbUnit.setText("单注金额：");
+        tfUnit.setText("");
 
-        tfUnit.setText("5");
         tfUnit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 tfUnitActionPerformed(evt);
@@ -188,9 +193,21 @@ public class MainUI extends javax.swing.JFrame {
 
         lbSumMoney.setFont(new java.awt.Font("Consolas", 1, 14)); // NOI18N
         lbSumMoney.setForeground(new java.awt.Color(204, 0, 0));
-        lbSumMoney.setText("25");
+        lbSumMoney.setText("0");
 
         btnSubmit.setText("确定");
+        btnSubmit.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnSubmit.addActionListener((actionEvent)->{
+            String plan = tfPlan.getText().trim();
+            String unit = tfUnit.getText().trim();
+
+            if (StringUtils.isEmpty(plan) || StringUtils.isEmpty(unit)){
+
+                return;
+            }
+
+            toBet(plan, unit);
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -369,5 +386,33 @@ public class MainUI extends javax.swing.JFrame {
         lbLastPeriod.setText((String) detail.get("lastGameNo"));
 
         logger.info("更新数据[{}]", JacksonUtil.toJson(detail));
+    }
+
+    /**
+     * 下注
+     */
+    public void toBet(String plan, String unit){
+        Map map = (Map) agentCacheProvider.get("XYFT");
+        Map oddMap = (Map) map.get("odds");
+
+        Map odd = (Map) oddMap.get("BALL_1");
+        String[] noArr = plan.split(" ");
+
+        lbSumMoney.setText(String.valueOf(noArr.length * Integer.parseInt(unit)));
+
+        List bets = new ArrayList();
+        String ball = "BALL_1";
+        for (String no: noArr){
+            List l = new ArrayList();
+            String n = "NO_" + Integer.parseInt(no);
+            l.add(n);
+            l.add(ball);
+            l.add(unit);
+            l.add(odd.get(n));
+
+            bets.add(l);
+        }
+
+        webContainer.submitBet(bets);
     }
 }

@@ -234,6 +234,7 @@ public class WebContainer {
                     simplify.put("balance", String.format("%.2f", balance));
                     simplify.put("XYFT", gameInfo.get("XYFT"));
                     simplify.put("time", System.currentTimeMillis());
+                    simplify.put("odds", rsMap.get("odds"));
 
                     return simplify;
                 } else {
@@ -246,5 +247,59 @@ public class WebContainer {
         }
 
         return null;
+    }
+
+    /**
+     * 下注
+     *
+     * @param betList
+     * @return
+     */
+    public boolean submitBet(List betList){
+        if (StringUtils.isEmpty(sessionId)) {
+
+            return false;
+        }
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        List<String> cookies = new ArrayList();
+        cookies.add(cookie);
+
+        headers.put(HttpHeaders.COOKIE, cookies);
+        headers.add(HttpHeaders.USER_AGENT, Constant.USER_AGENT);
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap paramMap = new LinkedMultiValueMap();
+        paramMap.add("command", "BET");
+        paramMap.add("sessionId", sessionId);
+        paramMap.add("oddsAdapt", "true");
+        paramMap.add("bets", JacksonUtil.toJson(betList));
+        paramMap.add("gameType", "XYFT");
+        paramMap.add("timestamps", String.valueOf(System.currentTimeMillis()));
+        paramMap.add("hasPlayerInfo", "true");
+
+        HttpEntity<MultiValueMap> requestEntity = new HttpEntity(paramMap, headers);
+        ResponseEntity<String> responseEntity = restTemplate.postForEntity(Constant.CZJ_WEB_AGENT, requestEntity, String.class);
+
+        String result = responseEntity.getBody();
+        if (StringUtils.isNotEmpty(result)) {
+            try {
+                Map rsMap = JacksonUtil.toObject(result, HashMap.class);
+                int code = (int) rsMap.get("returnCode");
+                if (code == 0) {
+                    logger.info("下注成功...");
+
+                    return true;
+                } else {
+                    String message = (String) rsMap.get("message");
+                    logger.error("下注失败[{}]!", message);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return false;
     }
 }
