@@ -207,6 +207,7 @@ public class MainUI extends javax.swing.JFrame {
             }
 
             toBet(plan, unit);
+            btnSubmit.setFocusPainted(false);
         });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
