@@ -7,8 +7,6 @@ import com.diyiliu.support.util.UIHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
-
 /**
  * Description: MainUI
  * Author: DIYILIU
