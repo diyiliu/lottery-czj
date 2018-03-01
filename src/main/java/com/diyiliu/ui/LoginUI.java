@@ -15,6 +15,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.Map;
 
 /**
  * @author DIYILIU
@@ -60,11 +64,20 @@ public class LoginUI extends javax.swing.JFrame {
         lbPassword.setText("密码");
 
         //lbCode.setIcon(new javax.swing.ImageIcon(ClassLoader.getSystemResource("img.jpeg"))); // NOI18N
+        lbCode.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lbCode.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                reloadCheckCode();
+            }
+        });
 
         jLabel4.setFont(new java.awt.Font("宋体", 1, 18)); // NOI18N
         jLabel4.setText("欢迎登录[彩之家]");
 
         btLogin.setText("登录");
+        btLogin.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
         btLogin.addActionListener((ActionEvent e) -> {
             String username = tfUsername.getText().trim();
             String password = tfPassword.getText().trim();
@@ -76,8 +89,11 @@ public class LoginUI extends javax.swing.JFrame {
 
                 java.awt.EventQueue.invokeLater(() ->
                         {
-                            MainUI mainUI = new MainUI(username);
+                            MainUI mainUI = SpringUtil.getBean("mainUI");
+                            mainUI.setCurrentUser(username);
                             mainUI.setVisible(true);
+                            mainUI.setBalance();
+
                         }
                 );
 

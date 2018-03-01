@@ -2,10 +2,13 @@ package com.diyiliu.ui;
 
 import com.diyiliu.support.config.Constant;
 import com.diyiliu.support.site.WebContainer;
+import com.diyiliu.support.util.JacksonUtil;
 import com.diyiliu.support.util.SpringUtil;
 import com.diyiliu.support.util.UIHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * Description: MainUI
@@ -14,13 +17,25 @@ import org.slf4j.LoggerFactory;
  */
 public class MainUI extends javax.swing.JFrame {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private WebContainer webContainer;
+
     /**
      * Creates new form MainUI
      */
     public MainUI() {
         initComponents();
         UIHelper.setCenter(this);
+    }
+
+    public MainUI(WebContainer webContainer) {
+        initComponents();
+        UIHelper.setCenter(this);
+
+        this.webContainer = webContainer;
+        UIHelper.beautify(Constant.LOOK_STYLE);
+        lbUser.setText("-");
+        lbMoney.setText("-");
     }
 
     public MainUI(String username) {
@@ -36,6 +51,8 @@ public class MainUI extends javax.swing.JFrame {
             String balance = webContainer.getBalance();
 
             lbMoney.setText(balance);
+            // 获取sessionId
+            webContainer.getPlayHoldem();
         });
     }
 
@@ -71,6 +88,7 @@ public class MainUI extends javax.swing.JFrame {
         btnSubmit = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("彩之家");
         setResizable(false);
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
@@ -114,10 +132,10 @@ public class MainUI extends javax.swing.JFrame {
 
         lbCurrentPeriod.setFont(new java.awt.Font("Consolas", 1, 14)); // NOI18N
         lbCurrentPeriod.setForeground(new java.awt.Color(0, 153, 102));
-        lbCurrentPeriod.setText("20180228118");
+        lbCurrentPeriod.setText("-");
 
         lbLastPeriod.setFont(new java.awt.Font("Consolas", 1, 14)); // NOI18N
-        lbLastPeriod.setText("20180228107");
+        lbLastPeriod.setText("-");
 
         lbLastResult.setFont(new java.awt.Font("宋体", 1, 12)); // NOI18N
         lbLastResult.setForeground(new java.awt.Color(204, 0, 0));
@@ -202,7 +220,7 @@ public class MainUI extends javax.swing.JFrame {
                                 .addContainerGap())
         );
 
-        jPanel4Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {tfPlan, tfUnit});
+        jPanel4Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[]{tfPlan, tfUnit});
 
         jPanel4Layout.setVerticalGroup(
                 jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -327,4 +345,29 @@ public class MainUI extends javax.swing.JFrame {
     private javax.swing.JTextField tfPlan;
     private javax.swing.JTextField tfUnit;
     // End of variables declaration
+
+    public void setCurrentUser(String username) {
+
+        lbUser.setText(username);
+    }
+
+    public void setBalance() {
+        java.awt.EventQueue.invokeLater(() -> {
+            String balance = webContainer.getBalance();
+
+            lbMoney.setText(balance);
+            // 获取sessionId
+            webContainer.getPlayHoldem();
+        });
+    }
+
+    public void refresh(Map dataMap) {
+        lbMoney.setText((String) dataMap.get("balance"));
+
+        Map detail = (Map) dataMap.get("XYFT");
+        lbCurrentPeriod.setText((String) detail.get("gameNo"));
+        lbLastPeriod.setText((String) detail.get("lastGameNo"));
+
+        logger.info("更新数据[{}]", JacksonUtil.toJson(detail));
+    }
 }

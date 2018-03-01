@@ -14,4 +14,6 @@ public class Constant {
     public final static String CZJ_CHECK_CODE = "http://czj909.com/caiZhiJiaCPLoginWeb/app/checkCode/image";
     public final static String CZJ_TO_LOGIN = "http://czj909.com/caiZhiJiaCPLoginWeb/app/loginVerification?5943.037352414396";
     public final static String CZJ_QUERY_BALANCE = "http://czj909.com/caiZhiJiaCPLoginWeb/app/getBalance?2559.332620339041";
+    public final static String CZJ_PLAY_HOLDEM = "http://czj909.com/caiZhiJiaCPLoginWeb/app/playHoldem?6693.2924244659";
+    public final static String CZJ_WEB_AGENT = "https://ssc.cdflzy.cn/lotteryweb/WebClientAgent";
 }
