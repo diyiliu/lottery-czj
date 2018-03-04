@@ -2,14 +2,17 @@ package com.diyiliu.ui;
 
 import com.diyiliu.support.cache.ICache;
 import com.diyiliu.support.config.Constant;
+import com.diyiliu.support.model.BetRecord;
+import com.diyiliu.support.model.BetReturn;
 import com.diyiliu.support.site.WebContainer;
-import com.diyiliu.support.util.JacksonUtil;
 import com.diyiliu.support.util.UIHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +31,12 @@ public class MainUI extends javax.swing.JFrame {
     @Resource
     private ICache agentCacheProvider;
 
+    @Resource
+    private ICache betCacheProvider;
+
+    @Resource
+    private LoginUI loginUI;
+
     /**
      * Creates new form MainUI
      */
@@ -37,29 +46,64 @@ public class MainUI extends javax.swing.JFrame {
     }
 
     public MainUI(WebContainer webContainer) {
-        initComponents();
-        UIHelper.setCenter(this);
+        UIHelper.beautify(Constant.LOOK_STYLE);
 
         this.webContainer = webContainer;
-        UIHelper.beautify(Constant.LOOK_STYLE);
-        lbUser.setText("-");
-        lbMoney.setText("-");
-    }
-
-    public MainUI(String username) {
         initComponents();
         UIHelper.setCenter(this);
 
-        UIHelper.beautify(Constant.LOOK_STYLE);
-        lbUser.setText(username);
+        lbUser.setText("-");
         lbMoney.setText("-");
 
-        java.awt.EventQueue.invokeLater(() -> {
-            String balance = webContainer.getBalance();
+        lbCurrentPeriod.setText("-");
+        lbCurrentSum.setText("0");
 
-            lbMoney.setText(balance);
-            // 获取sessionId
-            webContainer.getPlayHoldem();
+        lbStatus.setText("获取中");
+
+        lbLastPeriod.setText("-");
+        lbLastResult.setText("无");
+
+        tfCurrentBet.setText("");
+        tfPlan.setText("");
+
+        lbSumMoney.setText("0");
+
+        tfPlan.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER){
+                    calcMoney();
+                }
+            }
+        });
+
+        tfUnit.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER){
+                    calcMoney();
+                }
+            }
+        });
+
+        btnLogout.addActionListener((actionEvent)-> {
+            this.setVisible(false);
+            // 注销登录
+            webContainer.logout();
+            loginUI.init();
+        });
+
+        btnSubmit.addActionListener((actionEvent)->{
+            String plan = tfPlan.getText().trim();
+            String unit = tfUnit.getText().trim();
+
+            if (StringUtils.isEmpty(plan) || StringUtils.isEmpty(unit)){
+
+                return;
+            }
+
+            toBet(plan, unit);
+            btnSubmit.setFocusPainted(false);
         });
     }
 
@@ -78,6 +122,7 @@ public class MainUI extends javax.swing.JFrame {
         lbUser = new javax.swing.JLabel();
         lbBalance = new javax.swing.JLabel();
         lbMoney = new javax.swing.JLabel();
+        btnLogout = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel2 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
@@ -86,6 +131,9 @@ public class MainUI extends javax.swing.JFrame {
         lbLastPeriod = new javax.swing.JLabel();
         lbLastResult = new javax.swing.JLabel();
         lbPeriod = new javax.swing.JLabel();
+        tfCurrentBet = new javax.swing.JTextField();
+        lbCurrentSum = new javax.swing.JLabel();
+        lbStatus = new javax.swing.JLabel();
         lbPlan = new javax.swing.JLabel();
         tfPlan = new javax.swing.JTextField();
         lbUnit = new javax.swing.JLabel();
@@ -93,6 +141,10 @@ public class MainUI extends javax.swing.JFrame {
         lbSum = new javax.swing.JLabel();
         lbSumMoney = new javax.swing.JLabel();
         btnSubmit = new javax.swing.JButton();
+        btnAuto = new javax.swing.JButton();
+        btnAutoHand = new javax.swing.JButton();
+        tfAutoUnit = new javax.swing.JTextField();
+        lbAutoUnit = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("彩之家");
@@ -108,6 +160,14 @@ public class MainUI extends javax.swing.JFrame {
 
         lbMoney.setText("188.05");
 
+        btnLogout.setText("注销");
+        btnLogout.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnLogout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLogoutActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -121,7 +181,9 @@ public class MainUI extends javax.swing.JFrame {
                                 .addComponent(lbBalance)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(lbMoney)
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnLogout)
+                                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
                 jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -131,18 +193,21 @@ public class MainUI extends javax.swing.JFrame {
                                         .addComponent(lbUsername)
                                         .addComponent(lbUser)
                                         .addComponent(lbBalance)
-                                        .addComponent(lbMoney))
+                                        .addComponent(lbMoney)
+                                        .addComponent(btnLogout))
                                 .addContainerGap(16, Short.MAX_VALUE))
         );
 
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "排名1-10", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("宋体", 0, 12), new java.awt.Color(0, 0, 255))); // NOI18N
 
+        jPanel5.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
+
         lbCurrentPeriod.setFont(new java.awt.Font("Consolas", 1, 14)); // NOI18N
         lbCurrentPeriod.setForeground(new java.awt.Color(0, 153, 102));
-        lbCurrentPeriod.setText("-");
+        lbCurrentPeriod.setText("20180228118");
 
         lbLastPeriod.setFont(new java.awt.Font("Consolas", 1, 14)); // NOI18N
-        lbLastPeriod.setText("-");
+        lbLastPeriod.setText("20180228107");
 
         lbLastResult.setFont(new java.awt.Font("宋体", 1, 12)); // NOI18N
         lbLastResult.setForeground(new java.awt.Color(204, 0, 0));
@@ -151,16 +216,46 @@ public class MainUI extends javax.swing.JFrame {
         lbPeriod.setFont(new java.awt.Font("宋体", 1, 12)); // NOI18N
         lbPeriod.setText("期");
 
+        tfCurrentBet.setEditable(false);
+        tfCurrentBet.setBackground(new java.awt.Color(255, 255, 255));
+        tfCurrentBet.setFont(new java.awt.Font("Consolas", 1, 14)); // NOI18N
+        tfCurrentBet.setForeground(new java.awt.Color(102, 102, 102));
+        tfCurrentBet.setHorizontalAlignment(javax.swing.JTextField.LEFT);
+        tfCurrentBet.setText("01 02 03 04 05 07 08 09 10");
+        tfCurrentBet.setAutoscrolls(false);
+        tfCurrentBet.setBorder(null);
+        tfCurrentBet.setPreferredSize(new java.awt.Dimension(165, 21));
+        tfCurrentBet.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tfCurrentBetActionPerformed(evt);
+            }
+        });
+
+        lbCurrentSum.setFont(new java.awt.Font("Consolas", 1, 14)); // NOI18N
+        lbCurrentSum.setForeground(new java.awt.Color(204, 0, 51));
+        lbCurrentSum.setText("25");
+
+        lbStatus.setFont(new java.awt.Font("宋体", 1, 12)); // NOI18N
+        lbStatus.setForeground(new java.awt.Color(0, 153, 102));
+        lbStatus.setText("封盘");
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
                 jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(jPanel5Layout.createSequentialGroup()
                                 .addContainerGap()
-                                .addComponent(lbCurrentPeriod, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(lbPeriod)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 338, Short.MAX_VALUE)
+                                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                        .addGroup(jPanel5Layout.createSequentialGroup()
+                                                .addComponent(lbCurrentPeriod, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(lbPeriod)
+                                                .addGap(92, 92, 92)
+                                                .addComponent(lbCurrentSum))
+                                        .addComponent(tfCurrentBet, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(38, 38, 38)
+                                .addComponent(lbStatus)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 170, Short.MAX_VALUE)
                                 .addComponent(lbLastPeriod)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(lbLastResult)
@@ -174,15 +269,21 @@ public class MainUI extends javax.swing.JFrame {
                                         .addComponent(lbCurrentPeriod)
                                         .addComponent(lbLastPeriod)
                                         .addComponent(lbLastResult)
-                                        .addComponent(lbPeriod))
-                                .addContainerGap(19, Short.MAX_VALUE))
+                                        .addComponent(lbPeriod)
+                                        .addComponent(lbCurrentSum)
+                                        .addComponent(lbStatus))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+                                .addComponent(tfCurrentBet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap())
         );
 
         lbPlan.setText("计划追号：");
-        tfPlan.setText("");
-        lbUnit.setText("单注金额：");
-        tfUnit.setText("");
 
+        tfPlan.setText("01 02 03 04 05");
+
+        lbUnit.setText("单注金额：");
+
+        tfUnit.setText("5");
         tfUnit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 tfUnitActionPerformed(evt);
@@ -193,22 +294,26 @@ public class MainUI extends javax.swing.JFrame {
 
         lbSumMoney.setFont(new java.awt.Font("Consolas", 1, 14)); // NOI18N
         lbSumMoney.setForeground(new java.awt.Color(204, 0, 0));
-        lbSumMoney.setText("0");
+        lbSumMoney.setText("25");
 
         btnSubmit.setText("确定");
         btnSubmit.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        btnSubmit.addActionListener((actionEvent)->{
-            String plan = tfPlan.getText().trim();
-            String unit = tfUnit.getText().trim();
 
-            if (StringUtils.isEmpty(plan) || StringUtils.isEmpty(unit)){
+        btnAuto.setText("自动");
+        btnAuto.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-                return;
+        btnAutoHand.setText("手动");
+        btnAutoHand.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        tfAutoUnit.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        tfAutoUnit.setText("5");
+        tfAutoUnit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tfAutoUnitActionPerformed(evt);
             }
-
-            toBet(plan, unit);
-            btnSubmit.setFocusPainted(false);
         });
+
+        lbAutoUnit.setText("单注");
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -234,31 +339,44 @@ public class MainUI extends javax.swing.JFrame {
                                                                 .addComponent(lbUnit)
                                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                                 .addComponent(tfUnit)))
-                                                .addGap(0, 0, Short.MAX_VALUE)))
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                                                                .addComponent(lbAutoUnit)
+                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addComponent(tfAutoUnit, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                .addGap(18, 18, 18)
+                                                                .addComponent(btnAuto))
+                                                        .addComponent(btnAutoHand, javax.swing.GroupLayout.Alignment.TRAILING))))
                                 .addContainerGap())
         );
 
-        jPanel4Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[]{tfPlan, tfUnit});
+        jPanel4Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {tfPlan, tfUnit});
 
         jPanel4Layout.setVerticalGroup(
                 jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(jPanel4Layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(lbPlan)
-                                        .addComponent(tfPlan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(tfPlan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(btnAuto)
+                                        .addComponent(tfAutoUnit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(lbAutoUnit))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(lbUnit)
-                                        .addComponent(tfUnit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                .addComponent(lbUnit)
+                                                .addComponent(tfUnit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(btnAutoHand))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(lbSum)
                                         .addComponent(lbSumMoney)
                                         .addComponent(btnSubmit))
-                                .addContainerGap(14, Short.MAX_VALUE))
+                                .addContainerGap())
         );
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -274,8 +392,8 @@ public class MainUI extends javax.swing.JFrame {
                 jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addContainerGap()
-                                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addContainerGap())
         );
 
         jTabbedPane1.addTab("幸运飞艇", jPanel2);
@@ -292,9 +410,9 @@ public class MainUI extends javax.swing.JFrame {
                         .addGroup(jPanel3Layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jTabbedPane1)
-                                .addGap(21, 21, 21))
+                                .addGap(25, 25, 25))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -320,6 +438,18 @@ public class MainUI extends javax.swing.JFrame {
         // TODO add your handling code here:
     }
 
+    private void tfCurrentBetActionPerformed(java.awt.event.ActionEvent evt) {
+        // TODO add your handling code here:
+    }
+
+    private void tfAutoUnitActionPerformed(java.awt.event.ActionEvent evt) {
+        // TODO add your handling code here:
+    }
+
+    private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {
+        // TODO add your handling code here:
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -340,7 +470,11 @@ public class MainUI extends javax.swing.JFrame {
         });
     }
 
+
     // Variables declaration - do not modify
+    private javax.swing.JButton btnAuto;
+    private javax.swing.JButton btnAutoHand;
+    private javax.swing.JButton btnLogout;
     private javax.swing.JButton btnSubmit;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -348,18 +482,23 @@ public class MainUI extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JLabel lbAutoUnit;
     private javax.swing.JLabel lbBalance;
     private javax.swing.JLabel lbCurrentPeriod;
+    private javax.swing.JLabel lbCurrentSum;
     private javax.swing.JLabel lbLastPeriod;
     private javax.swing.JLabel lbLastResult;
     private javax.swing.JLabel lbMoney;
     private javax.swing.JLabel lbPeriod;
     private javax.swing.JLabel lbPlan;
+    private javax.swing.JLabel lbStatus;
     private javax.swing.JLabel lbSum;
     private javax.swing.JLabel lbSumMoney;
     private javax.swing.JLabel lbUnit;
     private javax.swing.JLabel lbUser;
     private javax.swing.JLabel lbUsername;
+    private javax.swing.JTextField tfAutoUnit;
+    private javax.swing.JTextField tfCurrentBet;
     private javax.swing.JTextField tfPlan;
     private javax.swing.JTextField tfUnit;
     // End of variables declaration
@@ -374,6 +513,7 @@ public class MainUI extends javax.swing.JFrame {
             String balance = webContainer.getBalance();
 
             lbMoney.setText(balance);
+            tfCurrentBet.grabFocus();
             // 获取sessionId
             webContainer.getPlayHoldem();
         });
@@ -383,10 +523,76 @@ public class MainUI extends javax.swing.JFrame {
         lbMoney.setText((String) dataMap.get("balance"));
 
         Map detail = (Map) dataMap.get("XYFT");
-        lbCurrentPeriod.setText((String) detail.get("gameNo"));
-        lbLastPeriod.setText((String) detail.get("lastGameNo"));
+        String gameNo = (String) detail.get("gameNo");
+        String lastGameNo = (String) detail.get("lastGameNo");
+        List lastGameResult = (List) detail.get("lastGameResult");
+        int first = (int) lastGameResult.get(0);
 
-        logger.info("更新数据[{}]", JacksonUtil.toJson(detail));
+        lbCurrentPeriod.setText(gameNo);
+        lbLastPeriod.setText(lastGameNo);
+
+        if (betCacheProvider.containsKey(gameNo)){
+            BetRecord record = (BetRecord) betCacheProvider.get(gameNo);
+            lbCurrentSum.setText(String.valueOf(record.getMoney()));
+            tfCurrentBet.setText(record.getPlan());
+        }else {
+            lbCurrentSum.setText("0");
+            tfCurrentBet.setText("");
+        }
+
+        if (betCacheProvider.containsKey(lastGameNo)){
+            BetRecord record = (BetRecord) betCacheProvider.get(lastGameNo);
+
+            int result = -1;
+            List<Integer> nos = record.getPlanNos();
+            for (Integer no: nos){
+                if (no == first){
+                    result = 1;
+                    break;
+                }
+            }
+
+            record.setResult(result);
+            if (result == 1){
+                lbLastResult.setText("中");
+            }else{
+                lbLastResult.setText("挂");
+            }
+        }else {
+            lbLastResult.setText("无");
+        }
+
+        int gameTime = (int) detail.get("gameTime");
+        int closeTime = (int) detail.get("closeTime");
+        int gap = gameTime -closeTime;
+
+        String status = (String) detail.get("gameStatus");
+        if ("BETTING".equals(status)){
+            if (gap > 30){
+                lbStatus.setText("下注");
+            }else if (gap < 3){
+                lbStatus.setText("封盘");
+            }else {
+                lbStatus.setText("临界");
+            }
+        }else {
+            lbStatus.setText("关盘");
+        }
+
+        logger.info("更新数据...");
+    }
+
+    public void calcMoney(){
+        String plan = tfPlan.getText().trim();
+        String unit = tfUnit.getText().trim();
+        if (StringUtils.isEmpty(plan) || StringUtils.isEmpty(unit)){
+
+            return;
+        }
+
+        String[] noArr = plan.split(" ");
+        int sum = noArr.length * Integer.parseInt(unit);
+        lbSumMoney.setText(String.valueOf(sum));
     }
 
     /**
@@ -399,21 +605,41 @@ public class MainUI extends javax.swing.JFrame {
         Map odd = (Map) oddMap.get("BALL_1");
         String[] noArr = plan.split(" ");
 
-        lbSumMoney.setText(String.valueOf(noArr.length * Integer.parseInt(unit)));
-
+        List<Integer> nos = new ArrayList();
         List bets = new ArrayList();
         String ball = "BALL_1";
         for (String no: noArr){
             List l = new ArrayList();
-            String n = "NO_" + Integer.parseInt(no);
+            int i = Integer.parseInt(no);
+            String n = "NO_" + i;
             l.add(n);
             l.add(ball);
             l.add(unit);
             l.add(odd.get(n));
 
             bets.add(l);
+            // 记录
+            nos.add(i);
         }
 
-        webContainer.submitBet(bets);
+        BetReturn betReturn = webContainer.submitBet(bets);
+        if (betReturn.isSuccess()){
+            tfPlan.setText("");
+            lbSumMoney.setText("0");
+
+            int sum = noArr.length * Integer.parseInt(unit);
+            String gameNo = betReturn.getPeriod();
+
+            BetRecord record = new BetRecord();
+            record.setPeriod(gameNo);
+            record.setPlan(plan);
+            record.setPlanNos(nos);
+            record.setUnit(Integer.parseInt(unit));
+            record.setMoney(sum);
+            record.setDetail(bets);
+            record.setDatetime(System.currentTimeMillis());
+
+            betCacheProvider.put(gameNo, record);
+        }
     }
 }

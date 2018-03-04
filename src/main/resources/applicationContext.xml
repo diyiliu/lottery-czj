@@ -32,7 +32,5 @@
         <property name="filters" value="${druid.filters}"/>
     </bean>
     -->
-    <bean id="webContainer" class="com.diyiliu.support.site.WebContainer" init-method="init"/>
-
-    <bean class="com.diyiliu.ui.LoginUI" init-method="init"/>
+    <bean id="loginUI" class="com.diyiliu.ui.LoginUI" init-method="init"/>
 </beans>

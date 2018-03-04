@@ -1,0 +1,53 @@
+Request URL: https://ssc.cdflzy.cn/lotteryweb/WebClientAgent
+Request Method: POST
+Status Code: 200 
+Remote Address: 211.138.122.234:443
+Referrer Policy: no-referrer-when-downgrade
+content-encoding: gzip
+content-length: 563
+content-type: application/json; charset=UTF-8
+date: Thu, 01 Mar 2018 14:42:41 GMT
+eagleid: d38a7a8915199153618222287e
+server: Tengine
+status: 200
+timing-allow-origin: *
+vary: Accept-Encoding
+vary: Accept-Encoding
+via: cache36.l2et15-2[173,200-0,M], cache4.l2et15-2[174,0], kunlun7.cn3[180,200-0,M], kunlun9.cn3[181,0]
+x-cache: MISS TCP_MISS dirn:-2:-2 mlen:-1
+x-powered-by: Undertow/1
+x-swift-cachetime: 0
+x-swift-savetime: Thu, 01 Mar 2018 14:42:42 GMT
+:authority: ssc.cdflzy.cn
+:method: POST
+:path: /lotteryweb/WebClientAgent
+:scheme: https
+accept: */*
+accept-encoding: gzip, deflate, br
+accept-language: zh-CN,zh;q=0.9
+content-length: 290
+content-type: application/x-www-form-urlencoded; charset=UTF-8
+cookie: JSESSIONID=hwEVsuGdDH2Zr1rHSphIsz3suVGom6Re9uTe6CHH.cash-sscweb3
+origin: https://ssc.cdflzy.cn
+referer: https://ssc.cdflzy.cn/lotteryweb/Login?code=3e12ddad-efc7-49cc-8379-72bc2003d1d8&homeUrl=http%3A%2F%2Fczj909%2Ecom%2FcaiZhiJiaCPLoginWeb%2Fapp%2Fhome%3Fl%3D0&ptn=0&LOBBY=0&lotteryPage=2&mob=0
+user-agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3355.4 Safari/537.36
+x-requested-with: XMLHttpRequest
+
+
+command: BET
+sessionId: 3e12ddad-efc7-49cc-8379-72bc2003d1d8
+oddsAdapt: true
+bets: [["NO_1","BALL_1","1",9.9],["NO_2","BALL_1","1",9.9],["NO_3","BALL_1","1",9.9]]
+gameType: XYFT
+timestamps: 1519915360000
+hasPlayerInfo: true
+
+
+
+{"bet":
+{"serverSideId":4501698,"sessionId":"3e12ddad-efc7-49cc-8379-72bc2003d1d8","orderId":"646aa70c-4e68-4c24-b74a-925cf2da0cdb","gameType":"XYFT","gameNo":"20180301116","tray":"A","playerId":"4143323","betIp":"183.213.124.215","issueDate":1519915361794,"betAmount":3,"commAmount":3,"winLoss":null,"commision":0,"betItems":[{"serverSideId":22117785,"betId":"c4065332-d7a9-4d36-ad86-692a7776fe62","betOn":"BALL_1","betType":"NO_1","betAmount":1,"commAmount":null,"commision":0.00000,"commisionRate":0.00000,"odd":9.9,"winloss":0,"betDetails":null},
+{"serverSideId":22117786,"betId":"e7e792cd-48e2-4fb1-980c-7a7c9fc24f3c","betOn":"BALL_1","betType":"NO_2","betAmount":1,"commAmount":null,"commision":0.00000,"commisionRate":0.00000,"odd":9.9,"winloss":0,"betDetails":null},
+{"serverSideId":22117787,"betId":"cdfcf1d7-a766-4e1b-9d3f-85cf520abe7e","betOn":"BALL_1","betType":"NO_3","betAmount":1,"commAmount":null,"commision":0.00000,"commisionRate":0.00000,"odd":9.9,"winloss":0,"betDetails":null}],"night":false},
+"returnCode":0,
+"siteCode":"f779c94f-df52-46bb-9ac1-ade0a0e89888","balance":174.06000,"lastSendTime":1519915361977,"webServerId":"5d98c50a-2fd1-4edd-b707-834d46ed151f","sessionId":"3e12ddad-efc7-49cc-8379-72bc2003d1d8","lotteryType":"XYFT","tableDate":"180301","command":"BET"}
+

@@ -1,0 +1,45 @@
+:authority: ssc.cdflzy.cn
+:method: POST
+:path: /lotteryweb/WebClientAgent
+:scheme: https
+accept: */*
+accept-encoding: gzip, deflate, br
+accept-language: zh-CN,zh;q=0.9
+content-length: 101
+content-type: application/x-www-form-urlencoded; charset=UTF-8
+cookie: JSESSIONID=DMbFJ4T8VSjC7tzXtfElNh7wvVmhFapTHLkKGbdt.cash-sscweb3
+origin: https://ssc.cdflzy.cn
+referer: https://ssc.cdflzy.cn/lotteryweb/Login?code=47bec884-8dca-4c88-83c2-f659de46395d&homeUrl=http%3A%2F%2Fczj909%2Ecom%2FcaiZhiJiaCPLoginWeb%2Fapp%2Fhome%3Fl%3D0&ptn=0&LOBBY=0&lotteryPage=2&mob=0
+user-agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3355.4 Safari/537.36
+x-requested-with: XMLHttpRequest
+command: CURRENT_ORDER
+sessionId: 47bec884-8dca-4c88-83c2-f659de46395d
+gameType: XYFT
+hasPlayerInfo: true
+
+
+{"returnCode":0,"lastBets":[{"betTime":1520170491000,"lotteryType":"XYFT","gameNo":"20180304103","betItem":[["NO_1","BALL_1",1,9.9000,"2a26e918-9a95-4471-8d44-63985dd35211",""],["NO_2","BALL_1",1,9.9000,"4b9c88f5-d410-448e-8739-16cc49ffd524",""],["NO_3","BALL_1",1,9.9000,"e8b93682-d3b1-47ea-8d9a-78591b32f899",""]],"gameResult":[]}],"hasPlayerInfo":true,"sessionId":"47bec884-8dca-4c88-83c2-f659de46395d","webServerId":"5d98c50a-2fd1-4edd-b707-834d46ed151f","lotteryType":"XYFT","command":"CURRENT_ORDER"}
+
+
+
+:authority: ssc.cdflzy.cn
+:method: POST
+:path: /lotteryweb/WebClientAgent
+:scheme: https
+accept: */*
+accept-encoding: gzip, deflate, br
+accept-language: zh-CN,zh;q=0.9
+content-length: 104
+content-type: application/x-www-form-urlencoded; charset=UTF-8
+cookie: JSESSIONID=DMbFJ4T8VSjC7tzXtfElNh7wvVmhFapTHLkKGbdt.cash-sscweb3
+origin: https://ssc.cdflzy.cn
+referer: https://ssc.cdflzy.cn/lotteryweb/Login?code=47bec884-8dca-4c88-83c2-f659de46395d&homeUrl=http%3A%2F%2Fczj909%2Ecom%2FcaiZhiJiaCPLoginWeb%2Fapp%2Fhome%3Fl%3D0&ptn=0&LOBBY=0&lotteryPage=2&mob=0
+user-agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3355.4 Safari/537.36
+x-requested-with: XMLHttpRequest
+command: REPORT_DETAILS
+sessionId: 47bec884-8dca-4c88-83c2-f659de46395d
+date: 2018-03-04
+hasPlayerInfo: true
+
+
+{"date":"2018-03-04","returnCode":0,"hasPlayerInfo":true,"reportDetails":[{"betTime":1520170491000,"betId":"2a26e918-9a95-4471-8d44-63985dd35211","betOn":"BALL_1","betType":"NO_1","betAmount":1,"odd":9.9000,"lotteryType":"XYFT","gameNo":"20180304103","winloss":-1.0000,"commision":0.00000,"betDetails":null,"newOdd":null,"gameResult":[2,5,8,3,7,1,6,10,4,9]},{"betTime":1520170491000,"betId":"4b9c88f5-d410-448e-8739-16cc49ffd524","betOn":"BALL_1","betType":"NO_2","betAmount":1,"odd":9.9000,"lotteryType":"XYFT","gameNo":"20180304103","winloss":8.9000,"commision":0.00000,"betDetails":null,"newOdd":null,"gameResult":[2,5,8,3,7,1,6,10,4,9]},{"betTime":1520170491000,"betId":"e8b93682-d3b1-47ea-8d9a-78591b32f899","betOn":"BALL_1","betType":"NO_3","betAmount":1,"odd":9.9000,"lotteryType":"XYFT","gameNo":"20180304103","winloss":-1.0000,"commision":0.00000,"betDetails":null,"newOdd":null,"gameResult":[2,5,8,3,7,1,6,10,4,9]}],"sessionId":"47bec884-8dca-4c88-83c2-f659de46395d","webServerId":"5d98c50a-2fd1-4edd-b707-834d46ed151f","command":"REPORT_DETAILS"}

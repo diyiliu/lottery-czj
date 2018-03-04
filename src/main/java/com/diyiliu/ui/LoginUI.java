@@ -13,12 +13,11 @@ import com.diyiliu.support.util.UIHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.Map;
 
 /**
  * @author DIYILIU
@@ -84,7 +83,7 @@ public class LoginUI extends javax.swing.JFrame {
             String password = tfPassword.getText().trim();
             String code = tfCode.getText().trim();
 
-            boolean success = webContainer.loginIn(username, password, code);
+            boolean success = webContainer.login(username, password, code);
             if (success) {
                 this.dispose();
 
@@ -94,7 +93,6 @@ public class LoginUI extends javax.swing.JFrame {
                             mainUI.setCurrentUser(username);
                             mainUI.setVisible(true);
                             mainUI.setBalance();
-
                         }
                 );
 
@@ -206,7 +204,7 @@ public class LoginUI extends javax.swing.JFrame {
     }
 
     public void init() {
-        webContainer = SpringUtil.getBean("webContainer");
+        webContainer.init();
         reloadCheckCode();
 
         tfUsername.setText("qinyupei");
@@ -232,8 +230,10 @@ public class LoginUI extends javax.swing.JFrame {
     private javax.swing.JTextField tfUsername;
     // End of variables declaration
 
-    private WebContainer webContainer;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Resource
+    private WebContainer webContainer;
 
     /**
      * 获取验证码

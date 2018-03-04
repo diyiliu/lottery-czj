@@ -1,6 +1,7 @@
 package com.diyiliu.support.site;
 
 import com.diyiliu.support.config.Constant;
+import com.diyiliu.support.model.BetReturn;
 import com.diyiliu.support.util.JacksonUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -80,7 +81,7 @@ public class WebContainer {
      * @param checkCode
      * @return
      */
-    public boolean loginIn(String username, String password, String checkCode) {
+    public boolean login(String username, String password, String checkCode) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         List<String> cookies = new ArrayList();
@@ -110,6 +111,44 @@ public class WebContainer {
                 } else {
                     String message = (String) rsMap.get("message");
                     logger.error("登录失败[{}]!", message);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 退出账号
+     *
+     * @return
+     */
+    public boolean logout() {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        List<String> cookies = new ArrayList();
+        cookies.add(cookie);
+
+        headers.put(HttpHeaders.COOKIE, cookies);
+        headers.add(HttpHeaders.USER_AGENT, Constant.USER_AGENT);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> requestEntity = new HttpEntity(new HashMap(), headers);
+        ResponseEntity<String> responseEntity = restTemplate.postForEntity(Constant.CZJ_TO_LOGOUT, requestEntity, String.class);
+
+        String result = responseEntity.getBody();
+        if (StringUtils.isNotEmpty(result)) {
+            try {
+                Map rsMap = JacksonUtil.toObject(result, HashMap.class);
+                boolean flag = (boolean) rsMap.get("success");
+                if (flag) {
+                    logger.info("注销成功...");
+                    sessionId = null;
+                    return true;
+                } else {
+                    logger.error("注销失败[{}]!", JacksonUtil.toJson(rsMap));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -255,10 +294,11 @@ public class WebContainer {
      * @param betList
      * @return
      */
-    public boolean submitBet(List betList){
+    public BetReturn submitBet(List betList) {
+        BetReturn betReturn = new BetReturn();
         if (StringUtils.isEmpty(sessionId)) {
 
-            return false;
+            return betReturn;
         }
 
         RestTemplate restTemplate = new RestTemplate();
@@ -287,10 +327,13 @@ public class WebContainer {
             try {
                 Map rsMap = JacksonUtil.toObject(result, HashMap.class);
                 int code = (int) rsMap.get("returnCode");
+                betReturn.setReturnCode(code);
                 if (code == 0) {
                     logger.info("下注成功...");
 
-                    return true;
+                    Map betMap = (Map) rsMap.get("bet");
+                    String gameNo = (String) betMap.get("gameNo");
+                    betReturn.setPeriod(gameNo);
                 } else {
                     String message = (String) rsMap.get("message");
                     logger.error("下注失败[{}]!", message);
@@ -300,6 +343,6 @@ public class WebContainer {
             }
         }
 
-        return false;
+        return betReturn;
     }
 }

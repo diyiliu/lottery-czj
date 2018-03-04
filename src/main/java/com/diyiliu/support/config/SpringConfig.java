@@ -18,6 +18,17 @@ public class SpringConfig {
 
 
     /**
+     * 爬虫工具
+     *
+     * @return
+     */
+    @Bean
+    public WebContainer webContainer(){
+
+        return new WebContainer();
+    }
+
+    /**
      * 主面板
      *
      * @return
@@ -35,6 +46,18 @@ public class SpringConfig {
      */
     @Bean
     public ICache agentCacheProvider() {
+
+        return new RamCacheProvider();
+    }
+
+
+    /**
+     * 下注数据
+     *
+     * @return
+     */
+    @Bean
+    public ICache betCacheProvider() {
 
         return new RamCacheProvider();
     }
