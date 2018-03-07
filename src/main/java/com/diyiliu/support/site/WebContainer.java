@@ -17,6 +17,8 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Description: WebContainer
@@ -26,6 +28,8 @@ import java.util.*;
 
 public class WebContainer {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private ConcurrentMap<String, Object> containerMap = new ConcurrentHashMap();
 
     private String cookie;
 
@@ -343,8 +347,7 @@ public class WebContainer {
                     String gameNo = (String) betMap.get("gameNo");
                     betReturn.setPeriod(gameNo);
                 } else {
-                    String message = (String) rsMap.get("message");
-                    logger.error("下注失败[{}]!", message);
+                    logger.error("下注失败[{}]!", result);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -357,6 +360,7 @@ public class WebContainer {
 
     /**
      * 今日输赢
+     * 服务器有查询时间间隔限制
      *
      * @return
      */
@@ -365,6 +369,20 @@ public class WebContainer {
 
             return null;
         }
+        long now = System.currentTimeMillis();
+        if (containerMap.containsKey("queryReportDetail")) {
+
+            long last = (long) containerMap.get("queryReportDetail");
+            // 小于3分钟间隔
+            if (now - last < 3 * 60 * 1000) {
+
+                return null;
+            }
+        }else {
+            containerMap.put("queryReportDetail", now);
+        }
+
+        logger.info("查询今日输赢情况...");
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -375,10 +393,17 @@ public class WebContainer {
         headers.add(HttpHeaders.USER_AGENT, Constant.USER_AGENT);
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
+        Calendar calendar = Calendar.getInstance();
+
+        int hour =  calendar.get(Calendar.HOUR_OF_DAY);
+        if (hour < 12){
+            calendar.add(Calendar.HOUR_OF_DAY, -1);
+        }
+
         MultiValueMap paramMap = new LinkedMultiValueMap();
         paramMap.add("command", "REPORT_DETAILS");
         paramMap.add("sessionId", sessionId);
-        paramMap.add("date", DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
+        paramMap.add("date", DateFormatUtils.format(calendar.getTimeInMillis(), "yyyy-MM-dd"));
         paramMap.add("hasPlayerInfo", "true");
 
         HttpEntity<MultiValueMap> requestEntity = new HttpEntity(paramMap, headers);
@@ -407,8 +432,7 @@ public class WebContainer {
 
                     return details;
                 } else {
-                    String message = (String) rsMap.get("message");
-                    logger.error("查询今日输赢失败[{}]!", message);
+                    logger.error("查询今日输赢失败[{}]!", result);
                 }
             } catch (IOException e) {
                 e.printStackTrace();

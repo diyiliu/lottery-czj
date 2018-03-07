@@ -75,7 +75,7 @@ public class MainUI extends javax.swing.JFrame {
         tfPlan.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER){
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     calcMoney();
                 }
             }
@@ -84,24 +84,24 @@ public class MainUI extends javax.swing.JFrame {
         tfUnit.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER){
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     calcMoney();
                 }
             }
         });
 
-        btnLogout.addActionListener((actionEvent)-> {
+        btnLogout.addActionListener((actionEvent) -> {
             this.setVisible(false);
             // 注销登录
             webContainer.logout();
             loginUI.init();
         });
 
-        btnSubmit.addActionListener((actionEvent)->{
+        btnSubmit.addActionListener((actionEvent) -> {
             String plan = tfPlan.getText().trim();
             String unit = tfUnit.getText().trim();
 
-            if (StringUtils.isEmpty(plan) || StringUtils.isEmpty(unit)){
+            if (StringUtils.isEmpty(plan) || StringUtils.isEmpty(unit)) {
 
                 return;
             }
@@ -365,7 +365,7 @@ public class MainUI extends javax.swing.JFrame {
                                 .addContainerGap())
         );
 
-        jPanel4Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {tfPlan, tfUnit});
+        jPanel4Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[]{tfPlan, tfUnit});
 
         jPanel4Layout.setVerticalGroup(
                 jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -520,7 +520,6 @@ public class MainUI extends javax.swing.JFrame {
     // End of variables declaration
 
     public void setCurrentUser(String username) {
-
         lbUser.setText(username);
     }
 
@@ -537,10 +536,13 @@ public class MainUI extends javax.swing.JFrame {
 
     public void setTodayWin() {
         java.awt.EventQueue.invokeLater(() -> {
-            String win = sumToday();
-            lbTodayWin.setText(win);
+            String today = sumToday();
+            if (!today.equals("0")) {
+                lbTodayWin.setText(today);
+            }
         });
     }
+
 
     public void refresh(Map dataMap) {
         lbMoney.setText((String) dataMap.get("balance"));
@@ -554,64 +556,63 @@ public class MainUI extends javax.swing.JFrame {
         lbCurrentPeriod.setText(gameNo);
         lbLastPeriod.setText(lastGameNo);
 
-        if (betCacheProvider.containsKey(gameNo)){
+        if (betCacheProvider.containsKey(gameNo)) {
             BetRecord record = (BetRecord) betCacheProvider.get(gameNo);
             lbCurrentSum.setText(String.valueOf(record.getMoney()));
             tfCurrentBet.setText(record.getPlan());
-        }else {
+        } else {
             lbCurrentSum.setText("0");
             tfCurrentBet.setText("");
         }
 
-        if (betCacheProvider.containsKey(lastGameNo)){
+        if (betCacheProvider.containsKey(lastGameNo)) {
             BetRecord record = (BetRecord) betCacheProvider.get(lastGameNo);
-
-            int result = -1;
-            List<Integer> nos = record.getPlanNos();
-            for (Integer no: nos){
-                if (no == first){
-                    result = 1;
-                    break;
+            if (record.getResult() == 0) {
+                int result = -1;
+                List<Integer> nos = record.getPlanNos();
+                for (Integer no : nos) {
+                    if (no == first) {
+                        result = 1;
+                        break;
+                    }
                 }
-            }
 
-            record.setResult(result);
-            if (result == 1){
-                lbLastResult.setText("中");
-            }else{
-                lbLastResult.setText("挂");
+                record.setResult(result);
+                if (result == 1) {
+                    lbLastResult.setText("中");
+                } else {
+                    lbLastResult.setText("挂");
+                }
+                lbTodayWin.setText(sumToday());
             }
-
-            // 计算今日输赢
-            lbTodayWin.setText(sumToday());
-        }else {
+        } else {
             lbLastResult.setText("无");
         }
 
         int gameTime = (int) detail.get("gameTime");
         int closeTime = (int) detail.get("closeTime");
-        int gap = gameTime -closeTime;
+        int gap = gameTime - closeTime;
 
         String status = (String) detail.get("gameStatus");
-        if ("BETTING".equals(status)){
-            if (gap > 30){
+        if ("BETTING".equals(status)) {
+            if (gap > 30) {
                 lbStatus.setText("下注");
-            }else if (gap < 3){
+            } else if (gap < 3) {
                 lbStatus.setText("封盘");
-            }else {
+            } else {
                 lbStatus.setText("临界");
             }
-        }else {
+        } else {
             lbStatus.setText("关盘");
         }
 
         //logger.info("更新数据...");
     }
 
-    public void calcMoney(){
+    public void calcMoney() {
         String plan = tfPlan.getText().trim();
         String unit = tfUnit.getText().trim();
-        if (StringUtils.isEmpty(plan) || StringUtils.isEmpty(unit)){
+        if (StringUtils.isEmpty(plan) || StringUtils.isEmpty(unit)) {
 
             return;
         }
@@ -624,7 +625,7 @@ public class MainUI extends javax.swing.JFrame {
     /**
      * 下注
      */
-    public void toBet(String plan, String unit){
+    public void toBet(String plan, String unit) {
         Map map = (Map) agentCacheProvider.get("XYFT");
         Map oddMap = (Map) map.get("odds");
 
@@ -634,7 +635,7 @@ public class MainUI extends javax.swing.JFrame {
         List<Integer> nos = new ArrayList();
         List bets = new ArrayList();
         String ball = "BALL_1";
-        for (String no: noArr){
+        for (String no : noArr) {
             List l = new ArrayList();
             int i = Integer.parseInt(no);
             String n = "NO_" + i;
@@ -649,7 +650,7 @@ public class MainUI extends javax.swing.JFrame {
         }
 
         BetReturn betReturn = webContainer.submitBet(bets);
-        if (betReturn.isSuccess()){
+        if (betReturn.isSuccess()) {
             tfPlan.setText("");
             lbSumMoney.setText("0");
 
@@ -669,15 +670,15 @@ public class MainUI extends javax.swing.JFrame {
         }
     }
 
-    private String sumToday(){
+    private String sumToday() {
         List<BetDetail> details = webContainer.queryReportDetail();
-        if (details == null || details.size() < 1){
+        if (details == null || details.size() < 1) {
 
             return "0";
         }
 
         BigDecimal sum = new BigDecimal(0);
-        for (BetDetail detail: details){
+        for (BetDetail detail : details) {
             sum = sum.add(detail.getWinLoss());
         }
 
