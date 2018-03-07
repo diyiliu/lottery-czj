@@ -57,7 +57,7 @@ public class MainUI extends javax.swing.JFrame {
 
         lbUser.setText("-");
         lbMoney.setText("-");
-        lbTodayWin.setText("-");
+        lbTodayWin.setText("0");
 
         lbCurrentPeriod.setText("-");
         lbCurrentSum.setText("0");
