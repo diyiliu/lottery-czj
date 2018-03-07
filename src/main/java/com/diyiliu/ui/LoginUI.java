@@ -93,6 +93,7 @@ public class LoginUI extends javax.swing.JFrame {
                             mainUI.setCurrentUser(username);
                             mainUI.setVisible(true);
                             mainUI.setBalance();
+                            mainUI.setTodayWin();
                         }
                 );
 

@@ -2,6 +2,7 @@ package com.diyiliu.ui;
 
 import com.diyiliu.support.cache.ICache;
 import com.diyiliu.support.config.Constant;
+import com.diyiliu.support.model.BetDetail;
 import com.diyiliu.support.model.BetRecord;
 import com.diyiliu.support.model.BetReturn;
 import com.diyiliu.support.site.WebContainer;
@@ -11,9 +12,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
+import javax.xml.soap.Detail;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -47,13 +51,13 @@ public class MainUI extends javax.swing.JFrame {
 
     public MainUI(WebContainer webContainer) {
         UIHelper.beautify(Constant.LOOK_STYLE);
-
         this.webContainer = webContainer;
         initComponents();
         UIHelper.setCenter(this);
 
         lbUser.setText("-");
         lbMoney.setText("-");
+        lbTodayWin.setText("-");
 
         lbCurrentPeriod.setText("-");
         lbCurrentSum.setText("0");
@@ -145,6 +149,8 @@ public class MainUI extends javax.swing.JFrame {
         btnAutoHand = new javax.swing.JButton();
         tfAutoUnit = new javax.swing.JTextField();
         lbAutoUnit = new javax.swing.JLabel();
+        lbToday = new javax.swing.JLabel();
+        lbTodayWin = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("彩之家");
@@ -153,12 +159,14 @@ public class MainUI extends javax.swing.JFrame {
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
 
         lbUsername.setText("账号：");
-
         lbUser.setText("diyiliu");
-
         lbBalance.setText("余额：");
-
         lbMoney.setText("188.05");
+
+        lbToday.setText("今日已结：");
+        lbTodayWin.setFont(new java.awt.Font("宋体", 1, 12)); // NOI18N
+        lbTodayWin.setForeground(new java.awt.Color(204, 0, 0));
+        lbTodayWin.setText("0");
 
         btnLogout.setText("注销");
         btnLogout.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -181,6 +189,10 @@ public class MainUI extends javax.swing.JFrame {
                                 .addComponent(lbBalance)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(lbMoney)
+                                .addGap(18, 18, 18)
+                                .addComponent(lbToday)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(lbTodayWin)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(btnLogout)
                                 .addContainerGap())
@@ -194,7 +206,9 @@ public class MainUI extends javax.swing.JFrame {
                                         .addComponent(lbUser)
                                         .addComponent(lbBalance)
                                         .addComponent(lbMoney)
-                                        .addComponent(btnLogout))
+                                        .addComponent(btnLogout)
+                                        .addComponent(lbToday)
+                                        .addComponent(lbTodayWin))
                                 .addContainerGap(16, Short.MAX_VALUE))
         );
 
@@ -277,11 +291,11 @@ public class MainUI extends javax.swing.JFrame {
                                 .addContainerGap())
         );
 
-        lbPlan.setText("计划追号：");
+        lbPlan.setText("计划追号");
 
         tfPlan.setText("01 02 03 04 05");
 
-        lbUnit.setText("单注金额：");
+        lbUnit.setText("单注金额");
 
         tfUnit.setText("5");
         tfUnit.addActionListener(new java.awt.event.ActionListener() {
@@ -290,7 +304,7 @@ public class MainUI extends javax.swing.JFrame {
             }
         });
 
-        lbSum.setText("下注金额：");
+        lbSum.setText("下注金额");
 
         lbSumMoney.setFont(new java.awt.Font("Consolas", 1, 14)); // NOI18N
         lbSumMoney.setForeground(new java.awt.Color(204, 0, 0));
@@ -501,6 +515,8 @@ public class MainUI extends javax.swing.JFrame {
     private javax.swing.JTextField tfCurrentBet;
     private javax.swing.JTextField tfPlan;
     private javax.swing.JTextField tfUnit;
+    private javax.swing.JLabel lbToday;
+    private javax.swing.JLabel lbTodayWin;
     // End of variables declaration
 
     public void setCurrentUser(String username) {
@@ -516,6 +532,13 @@ public class MainUI extends javax.swing.JFrame {
             tfCurrentBet.grabFocus();
             // 获取sessionId
             webContainer.getPlayHoldem();
+        });
+    }
+
+    public void setTodayWin() {
+        java.awt.EventQueue.invokeLater(() -> {
+            String win = sumToday();
+            lbTodayWin.setText(win);
         });
     }
 
@@ -558,6 +581,9 @@ public class MainUI extends javax.swing.JFrame {
             }else{
                 lbLastResult.setText("挂");
             }
+
+            // 计算今日输赢
+            lbTodayWin.setText(sumToday());
         }else {
             lbLastResult.setText("无");
         }
@@ -579,7 +605,7 @@ public class MainUI extends javax.swing.JFrame {
             lbStatus.setText("关盘");
         }
 
-        logger.info("更新数据...");
+        //logger.info("更新数据...");
     }
 
     public void calcMoney(){
@@ -641,5 +667,20 @@ public class MainUI extends javax.swing.JFrame {
 
             betCacheProvider.put(gameNo, record);
         }
+    }
+
+    private String sumToday(){
+        List<BetDetail> details = webContainer.queryReportDetail();
+        if (details == null || details.size() < 1){
+
+            return "0";
+        }
+
+        BigDecimal sum = new BigDecimal(0);
+        for (BetDetail detail: details){
+            sum = sum.add(detail.getWinLoss());
+        }
+
+        return String.valueOf(sum.doubleValue());
     }
 }

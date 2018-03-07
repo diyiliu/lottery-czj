@@ -1,9 +1,12 @@
 package com.diyiliu.support.site;
 
 import com.diyiliu.support.config.Constant;
+import com.diyiliu.support.model.BetDetail;
 import com.diyiliu.support.model.BetReturn;
 import com.diyiliu.support.util.JacksonUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -12,10 +15,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  * Description: WebContainer
@@ -200,6 +201,9 @@ public class WebContainer {
         return "?";
     }
 
+    /**
+     * 进入下注页面
+     */
     public void getPlayHoldem() {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -236,12 +240,16 @@ public class WebContainer {
         }
     }
 
+    /**
+     * 定时刷新数据
+     *
+     * @return
+     */
     public Map queryWebAgent() {
         if (StringUtils.isEmpty(sessionId)) {
 
             return null;
         }
-
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         List<String> cookies = new ArrayList();
@@ -345,4 +353,69 @@ public class WebContainer {
 
         return betReturn;
     }
+
+
+    /**
+     * 今日输赢
+     *
+     * @return
+     */
+    public List<BetDetail> queryReportDetail() {
+        if (StringUtils.isEmpty(sessionId)) {
+
+            return null;
+        }
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        List<String> cookies = new ArrayList();
+        cookies.add(cookie);
+
+        headers.put(HttpHeaders.COOKIE, cookies);
+        headers.add(HttpHeaders.USER_AGENT, Constant.USER_AGENT);
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap paramMap = new LinkedMultiValueMap();
+        paramMap.add("command", "REPORT_DETAILS");
+        paramMap.add("sessionId", sessionId);
+        paramMap.add("date", DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
+        paramMap.add("hasPlayerInfo", "true");
+
+        HttpEntity<MultiValueMap> requestEntity = new HttpEntity(paramMap, headers);
+        ResponseEntity<String> responseEntity = restTemplate.postForEntity(Constant.CZJ_WEB_AGENT, requestEntity, String.class);
+
+        String result = responseEntity.getBody();
+        if (StringUtils.isNotEmpty(result)) {
+            try {
+                Map rsMap = JacksonUtil.toObject(result, HashMap.class);
+                int code = (int) rsMap.get("returnCode");
+                if (code == 0) {
+                    List gameInfo = (List) rsMap.get("reportDetails");
+
+                    List<BetDetail> details = new ArrayList();
+                    gameInfo.forEach(e -> {
+                        Map m = (Map) e;
+
+                        BetDetail d = new BetDetail();
+                        d.setGameNo((String) m.get("gameNo"));
+                        d.setBetType((String) m.get("betType"));
+                        d.setBetOn((String) m.get("betOn"));
+                        d.setBetMoney((Integer) m.get("betAmount"));
+                        d.setWinLoss(new BigDecimal((Double) m.get("winloss")));
+                        details.add(d);
+                    });
+
+                    return details;
+                } else {
+                    String message = (String) rsMap.get("message");
+                    logger.error("查询今日输赢失败[{}]!", message);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+
 }

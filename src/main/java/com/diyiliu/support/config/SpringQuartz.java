@@ -37,6 +37,7 @@ public class SpringQuartz {
      */
     @Scheduled(fixedDelay = 11 * 1000, initialDelay = 15 * 1000)
     public void refreshWebAgent() {
+        webContainer.queryReportDetail();
         Map respMap = webContainer.queryWebAgent();
         if (respMap != null){
             logger.info("刷新开奖数据...");
