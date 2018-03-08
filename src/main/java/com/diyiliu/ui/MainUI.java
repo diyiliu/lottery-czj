@@ -583,7 +583,14 @@ public class MainUI extends javax.swing.JFrame {
                 } else {
                     lbLastResult.setText("挂");
                 }
-                lbTodayWin.setText(sumToday());
+
+                // 统计今日输赢
+                String today = sumToday();
+                if (today.equals("0")){
+                    record.setResult(0);
+                }else {
+                    lbTodayWin.setText(today);
+                }
             }
         } else {
             lbLastResult.setText("无");
