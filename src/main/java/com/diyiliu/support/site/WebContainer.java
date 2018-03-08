@@ -378,7 +378,7 @@ public class WebContainer {
 
                 return null;
             }
-        }else {
+        } else {
             containerMap.put("queryReportDetail", now);
         }
 
@@ -395,8 +395,8 @@ public class WebContainer {
 
         Calendar calendar = Calendar.getInstance();
 
-        int hour =  calendar.get(Calendar.HOUR_OF_DAY);
-        if (hour < 12){
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        if (hour < 12) {
             calendar.add(Calendar.HOUR_OF_DAY, -1);
         }
 
@@ -413,7 +413,7 @@ public class WebContainer {
         if (StringUtils.isNotEmpty(result)) {
             try {
                 Map rsMap = JacksonUtil.toObject(result, HashMap.class);
-                if (!rsMap.containsKey("returnCode")){
+                if (!rsMap.containsKey("returnCode")) {
 
                     return null;
                 }
@@ -431,7 +431,7 @@ public class WebContainer {
                         d.setBetType((String) m.get("betType"));
                         d.setBetOn((String) m.get("betOn"));
                         d.setBetMoney((Integer) m.get("betAmount"));
-                        d.setWinLoss(new BigDecimal((Double) m.get("winloss")));
+                        d.setWinLoss(new BigDecimal(String.valueOf(m.get("winloss"))));
                         details.add(d);
                     });
 

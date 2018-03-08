@@ -586,9 +586,9 @@ public class MainUI extends javax.swing.JFrame {
 
                 // 统计今日输赢
                 String today = sumToday();
-                if (today.equals("0")){
+                if (today.equals("0")) {
                     record.setResult(0);
-                }else {
+                } else {
                     lbTodayWin.setText(today);
                 }
             }
@@ -689,6 +689,6 @@ public class MainUI extends javax.swing.JFrame {
             sum = sum.add(detail.getWinLoss());
         }
 
-        return String.valueOf(sum.doubleValue());
+        return String.format("%.2f", sum.doubleValue());
     }
 }
