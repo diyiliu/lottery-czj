@@ -12,12 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
-import javax.xml.soap.Detail;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -94,6 +92,8 @@ public class MainUI extends javax.swing.JFrame {
             this.setVisible(false);
             // 注销登录
             webContainer.logout();
+            agentCacheProvider.clear();
+            betCacheProvider.clear();
             loginUI.init();
         });
 
