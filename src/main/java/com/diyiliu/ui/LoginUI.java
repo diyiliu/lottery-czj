@@ -208,8 +208,8 @@ public class LoginUI extends javax.swing.JFrame {
         webContainer.init();
         reloadCheckCode();
 
-        tfUsername.setText("qinyupei");
-        tfPassword.setText("ws84207ws");
+//        tfUsername.setText("qinyupei");
+//        tfPassword.setText("ws84207ws");dy
 
         UIHelper.beautify(Constant.LOOK_STYLE);
 

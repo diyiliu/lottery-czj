@@ -279,7 +279,7 @@ public class WebContainer {
                 int code = (int) rsMap.get("returnCode");
                 if (code == 0) {
                     Map gameInfo = (Map) rsMap.get("gameInfo");
-                    double balance = (double) rsMap.get("balance");
+                    double balance = Double.valueOf(String.valueOf(rsMap.get("balance")));
 
                     Map simplify = new HashMap();
                     simplify.put("balance", String.format("%.2f", balance));
@@ -413,6 +413,11 @@ public class WebContainer {
         if (StringUtils.isNotEmpty(result)) {
             try {
                 Map rsMap = JacksonUtil.toObject(result, HashMap.class);
+                if (!rsMap.containsKey("returnCode")){
+
+                    return null;
+                }
+
                 int code = (int) rsMap.get("returnCode");
                 if (code == 0) {
                     List gameInfo = (List) rsMap.get("reportDetails");
