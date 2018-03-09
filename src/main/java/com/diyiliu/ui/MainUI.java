@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Resource;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +28,13 @@ import java.util.Map;
  */
 public class MainUI extends javax.swing.JFrame {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private final String lotteryType = "幸运飞艇";
+
+    private boolean autoBet;
+
+    @Resource
+    private HelpWinUtil helpWinUtil;
 
     @Resource
     private WebContainer webContainer;
@@ -56,6 +65,8 @@ public class MainUI extends javax.swing.JFrame {
         lbUser.setText("-");
         lbMoney.setText("-");
         lbTodayWin.setText("0");
+
+        lbRefresh.setIcon(new javax.swing.ImageIcon(ClassLoader.getSystemResource("image/synchronize.png"))); // NOI18N
 
         lbCurrentPeriod.setText("-");
         lbCurrentSum.setText("0");
@@ -88,16 +99,30 @@ public class MainUI extends javax.swing.JFrame {
             }
         });
 
-        btnLogout.addActionListener((actionEvent) -> {
+        // 更新金额数据
+        lbRefresh.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+               String balance = webContainer.getBalance();
+                if (!balance.equals("?")){
+                    lbMoney.setText(balance);
+                }
+                setTodayWin();
+            }
+        });
+
+        // 注销登录
+        btnLogout.addActionListener(actionEvent -> {
             this.setVisible(false);
-            // 注销登录
+
             webContainer.logout();
             agentCacheProvider.clear();
             betCacheProvider.clear();
             loginUI.init();
         });
 
-        btnSubmit.addActionListener((actionEvent) -> {
+        // 提交下注
+        btnSubmit.addActionListener(actionEvent -> {
             String plan = tfPlan.getText().trim();
             String unit = tfUnit.getText().trim();
 
@@ -109,7 +134,32 @@ public class MainUI extends javax.swing.JFrame {
             toBet(plan, unit);
             btnSubmit.setFocusPainted(false);
         });
+
+        // 开启关闭自动下注
+        btnAuto.addActionListener(actionEvent -> {
+            String text = btnAuto.getText().trim();
+            if (text.equals("自动")) {
+                autoBet = true;
+                btnAuto.setText("停止");
+
+                tfPlan.setEditable(false);
+                tfUnit.setEditable(false);
+
+                int sum = 5 * Integer.valueOf(tfUnit.getText().trim());
+                lbSumMoney.setText(String.valueOf(sum));
+                btnSubmit.setEnabled(false);
+            } else {
+                autoBet = false;
+                btnAuto.setText("自动");
+
+                tfPlan.setEditable(true);
+                tfUnit.setEditable(true);
+                lbSumMoney.setText("0");
+                btnSubmit.setEnabled(true);
+            }
+        });
     }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -127,6 +177,9 @@ public class MainUI extends javax.swing.JFrame {
         lbBalance = new javax.swing.JLabel();
         lbMoney = new javax.swing.JLabel();
         btnLogout = new javax.swing.JButton();
+        lbToday = new javax.swing.JLabel();
+        lbTodayWin = new javax.swing.JLabel();
+        lbRefresh = new javax.swing.JLabel();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel2 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
@@ -146,27 +199,21 @@ public class MainUI extends javax.swing.JFrame {
         lbSumMoney = new javax.swing.JLabel();
         btnSubmit = new javax.swing.JButton();
         btnAuto = new javax.swing.JButton();
-        btnAutoHand = new javax.swing.JButton();
-        tfAutoUnit = new javax.swing.JTextField();
-        lbAutoUnit = new javax.swing.JLabel();
-        lbToday = new javax.swing.JLabel();
-        lbTodayWin = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("彩之家");
         setResizable(false);
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+        jPanel1.setToolTipText("");
 
         lbUsername.setText("账号：");
-        lbUser.setText("diyiliu");
-        lbBalance.setText("余额：");
-        lbMoney.setText("188.05");
 
-        lbToday.setText("今日已结：");
-        lbTodayWin.setFont(new java.awt.Font("宋体", 1, 12)); // NOI18N
-        lbTodayWin.setForeground(new java.awt.Color(204, 0, 0));
-        lbTodayWin.setText("0");
+        lbUser.setText("diyiliu");
+
+        lbBalance.setText("余额：");
+
+        lbMoney.setText("188.05");
 
         btnLogout.setText("注销");
         btnLogout.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -175,6 +222,14 @@ public class MainUI extends javax.swing.JFrame {
                 btnLogoutActionPerformed(evt);
             }
         });
+
+        lbToday.setText("今日已结：");
+
+        lbTodayWin.setText("100.00");
+
+        //lbRefresh.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/synchronize.png"))); // NOI18N
+        lbRefresh.setText(" ");
+        lbRefresh.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -193,6 +248,8 @@ public class MainUI extends javax.swing.JFrame {
                                 .addComponent(lbToday)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(lbTodayWin)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(lbRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(btnLogout)
                                 .addContainerGap())
@@ -208,7 +265,8 @@ public class MainUI extends javax.swing.JFrame {
                                         .addComponent(lbMoney)
                                         .addComponent(btnLogout)
                                         .addComponent(lbToday)
-                                        .addComponent(lbTodayWin))
+                                        .addComponent(lbTodayWin)
+                                        .addComponent(lbRefresh))
                                 .addContainerGap(16, Short.MAX_VALUE))
         );
 
@@ -237,7 +295,7 @@ public class MainUI extends javax.swing.JFrame {
         tfCurrentBet.setHorizontalAlignment(javax.swing.JTextField.LEFT);
         tfCurrentBet.setText("01 02 03 04 05 07 08 09 10");
         tfCurrentBet.setAutoscrolls(false);
-        tfCurrentBet.setBorder(null);
+        tfCurrentBet.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 5, 1, 1));
         tfCurrentBet.setPreferredSize(new java.awt.Dimension(165, 21));
         tfCurrentBet.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -259,15 +317,15 @@ public class MainUI extends javax.swing.JFrame {
                 jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(jPanel5Layout.createSequentialGroup()
                                 .addContainerGap()
-                                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                         .addGroup(jPanel5Layout.createSequentialGroup()
-                                                .addComponent(lbCurrentPeriod, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(lbCurrentPeriod, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                 .addComponent(lbPeriod)
-                                                .addGap(92, 92, 92)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                 .addComponent(lbCurrentSum))
-                                        .addComponent(tfCurrentBet, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(38, 38, 38)
+                                        .addComponent(tfCurrentBet, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(50, 50, 50)
                                 .addComponent(lbStatus)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 170, Short.MAX_VALUE)
                                 .addComponent(lbLastPeriod)
@@ -291,11 +349,11 @@ public class MainUI extends javax.swing.JFrame {
                                 .addContainerGap())
         );
 
-        lbPlan.setText("计划追号");
+        lbPlan.setText("计划追号：");
 
         tfPlan.setText("01 02 03 04 05");
 
-        lbUnit.setText("单注金额");
+        lbUnit.setText("单注金额：");
 
         tfUnit.setText("5");
         tfUnit.addActionListener(new java.awt.event.ActionListener() {
@@ -304,7 +362,7 @@ public class MainUI extends javax.swing.JFrame {
             }
         });
 
-        lbSum.setText("下注金额");
+        lbSum.setText("下注金额：");
 
         lbSumMoney.setFont(new java.awt.Font("Consolas", 1, 14)); // NOI18N
         lbSumMoney.setForeground(new java.awt.Color(204, 0, 0));
@@ -316,19 +374,6 @@ public class MainUI extends javax.swing.JFrame {
         btnAuto.setText("自动");
         btnAuto.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        btnAutoHand.setText("手动");
-        btnAutoHand.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-        tfAutoUnit.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        tfAutoUnit.setText("5");
-        tfAutoUnit.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tfAutoUnitActionPerformed(evt);
-            }
-        });
-
-        lbAutoUnit.setText("单注");
-
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -337,58 +382,44 @@ public class MainUI extends javax.swing.JFrame {
                         .addGroup(jPanel4Layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(lbPlan)
+                                        .addComponent(lbUnit)
+                                        .addComponent(lbSum))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                         .addGroup(jPanel4Layout.createSequentialGroup()
-                                                .addComponent(lbSum)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                 .addComponent(lbSumMoney)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addComponent(btnSubmit))
-                                        .addGroup(jPanel4Layout.createSequentialGroup()
-                                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                                        .addGroup(jPanel4Layout.createSequentialGroup()
-                                                                .addComponent(lbPlan)
-                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                                .addComponent(tfPlan, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                        .addGroup(jPanel4Layout.createSequentialGroup()
-                                                                .addComponent(lbUnit)
-                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                                .addComponent(tfUnit)))
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                                                                .addComponent(lbAutoUnit)
-                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                                .addComponent(tfAutoUnit, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                .addGap(18, 18, 18)
-                                                                .addComponent(btnAuto))
-                                                        .addComponent(btnAutoHand, javax.swing.GroupLayout.Alignment.TRAILING))))
+                                                .addComponent(btnAuto))
+                                        .addComponent(tfPlan, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(tfUnit))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnSubmit)
                                 .addContainerGap())
         );
 
         jPanel4Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[]{tfPlan, tfUnit});
+
+        jPanel4Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[]{lbPlan, lbSum, lbUnit});
 
         jPanel4Layout.setVerticalGroup(
                 jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(jPanel4Layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(lbPlan)
-                                        .addComponent(tfPlan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(btnAuto)
-                                        .addComponent(tfAutoUnit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(lbAutoUnit))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
                                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                                .addComponent(lbUnit)
-                                                .addComponent(tfUnit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addComponent(btnAutoHand))
+                                        .addComponent(lbPlan)
+                                        .addComponent(tfPlan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(lbUnit)
+                                        .addComponent(tfUnit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(8, 8, 8)
                                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(lbSum)
                                         .addComponent(lbSumMoney)
+                                        .addComponent(btnAuto)
                                         .addComponent(btnSubmit))
                                 .addContainerGap())
         );
@@ -406,8 +437,7 @@ public class MainUI extends javax.swing.JFrame {
                 jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addContainerGap()
-                                .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addContainerGap())
+                                .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("幸运飞艇", jPanel2);
@@ -487,7 +517,6 @@ public class MainUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify
     private javax.swing.JButton btnAuto;
-    private javax.swing.JButton btnAutoHand;
     private javax.swing.JButton btnLogout;
     private javax.swing.JButton btnSubmit;
     private javax.swing.JPanel jPanel1;
@@ -496,7 +525,6 @@ public class MainUI extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JLabel lbAutoUnit;
     private javax.swing.JLabel lbBalance;
     private javax.swing.JLabel lbCurrentPeriod;
     private javax.swing.JLabel lbCurrentSum;
@@ -505,18 +533,18 @@ public class MainUI extends javax.swing.JFrame {
     private javax.swing.JLabel lbMoney;
     private javax.swing.JLabel lbPeriod;
     private javax.swing.JLabel lbPlan;
+    private javax.swing.JLabel lbRefresh;
     private javax.swing.JLabel lbStatus;
     private javax.swing.JLabel lbSum;
     private javax.swing.JLabel lbSumMoney;
+    private javax.swing.JLabel lbToday;
+    private javax.swing.JLabel lbTodayWin;
     private javax.swing.JLabel lbUnit;
     private javax.swing.JLabel lbUser;
     private javax.swing.JLabel lbUsername;
-    private javax.swing.JTextField tfAutoUnit;
     private javax.swing.JTextField tfCurrentBet;
     private javax.swing.JTextField tfPlan;
     private javax.swing.JTextField tfUnit;
-    private javax.swing.JLabel lbToday;
-    private javax.swing.JLabel lbTodayWin;
     // End of variables declaration
 
     public void setCurrentUser(String username) {
@@ -586,10 +614,13 @@ public class MainUI extends javax.swing.JFrame {
 
                 // 统计今日输赢
                 String today = sumToday();
-                if (today.equals("0")) {
-                    record.setResult(0);
-                } else {
+                if (!today.equals("0")) {
                     lbTodayWin.setText(today);
+                }
+
+                // 自动下注
+                if (autoBet) {
+                    toAutoBet();
                 }
             }
         } else {
@@ -604,6 +635,10 @@ public class MainUI extends javax.swing.JFrame {
         if ("BETTING".equals(status)) {
             if (gap > 30) {
                 lbStatus.setText("下注");
+                if (autoBet && !betCacheProvider.containsKey(gameNo)) {
+
+                    toAutoBet();
+                }
             } else if (gap < 3) {
                 lbStatus.setText("封盘");
             } else {
@@ -627,6 +662,26 @@ public class MainUI extends javax.swing.JFrame {
         String[] noArr = plan.split(" ");
         int sum = noArr.length * Integer.parseInt(unit);
         lbSumMoney.setText(String.valueOf(sum));
+    }
+
+    /**
+     * 自动下注
+     */
+    public void toAutoBet() {
+        try {
+            String winPlan = helpWinUtil.getPlan(lotteryType);
+            if (StringUtils.isEmpty(winPlan)) {
+                logger.error("自动下注失败，无法获取助赢计划!");
+                return;
+            }
+            tfPlan.setText(winPlan);
+
+            String plan = tfPlan.getText().trim();
+            String unit = tfUnit.getText().trim();
+            toBet(plan, unit);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**

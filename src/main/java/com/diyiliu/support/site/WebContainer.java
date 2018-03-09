@@ -170,6 +170,8 @@ public class WebContainer {
      * @return
      */
     public String getBalance() {
+        logger.info("查询余额...");
+
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         List<String> cookies = new ArrayList();
@@ -378,10 +380,7 @@ public class WebContainer {
 
                 return null;
             }
-        } else {
-            containerMap.put("queryReportDetail", now);
         }
-
         logger.info("查询今日输赢情况...");
 
         RestTemplate restTemplate = new RestTemplate();
@@ -434,6 +433,7 @@ public class WebContainer {
                         d.setWinLoss(new BigDecimal(String.valueOf(m.get("winloss"))));
                         details.add(d);
                     });
+                    containerMap.put("queryReportDetail", now);
 
                     return details;
                 } else {

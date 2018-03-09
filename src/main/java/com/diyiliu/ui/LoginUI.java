@@ -30,6 +30,9 @@ public class LoginUI extends javax.swing.JFrame {
     public LoginUI() {
         initComponents();
         UIHelper.setCenter(this);
+
+        tfUsername.setText("dyl");
+        tfPassword.setText("ww151208");
     }
 
     /**
@@ -63,7 +66,7 @@ public class LoginUI extends javax.swing.JFrame {
         lbPassword.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         lbPassword.setText("密码");
 
-        //lbCode.setIcon(new javax.swing.ImageIcon(ClassLoader.getSystemResource("img.jpeg"))); // NOI18N
+        //lbCode.setIcon(new javax.swing.ImageIcon(ClassLoader.getSystemResource("image/code.jpeg"))); // NOI18N
         lbCode.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         lbCode.addMouseListener(new MouseAdapter() {
             @Override

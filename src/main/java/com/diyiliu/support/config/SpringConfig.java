@@ -3,6 +3,7 @@ package com.diyiliu.support.config;
 import com.diyiliu.support.cache.ICache;
 import com.diyiliu.support.cache.ram.RamCacheProvider;
 import com.diyiliu.support.site.WebContainer;
+import com.diyiliu.ui.HelpWinUtil;
 import com.diyiliu.ui.MainUI;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,17 @@ public class SpringConfig {
     public WebContainer webContainer(){
 
         return new WebContainer();
+    }
+
+    /**
+     * 获取助赢软件计划
+     *
+     * @return
+     */
+    @Bean
+    public HelpWinUtil helpWinUtil(){
+
+        return new HelpWinUtil();
     }
 
     /**
