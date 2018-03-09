@@ -343,7 +343,7 @@ public class WebContainer {
                 int code = (int) rsMap.get("returnCode");
                 betReturn.setReturnCode(code);
                 if (code == 0) {
-                    logger.info("下注成功...");
+                    //logger.info("下注成功...");
 
                     Map betMap = (Map) rsMap.get("bet");
                     String gameNo = (String) betMap.get("gameNo");

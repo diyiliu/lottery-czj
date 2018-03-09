@@ -103,8 +103,8 @@ public class MainUI extends javax.swing.JFrame {
         lbRefresh.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-               String balance = webContainer.getBalance();
-                if (!balance.equals("?")){
+                String balance = webContainer.getBalance();
+                if (!balance.equals("?")) {
                     lbMoney.setText(balance);
                 }
                 setTodayWin();
@@ -646,7 +646,7 @@ public class MainUI extends javax.swing.JFrame {
             }
         } else {
             lbStatus.setText("关盘");
-            if (autoBet){
+            if (autoBet) {
                 autoBet = false;
             }
         }
@@ -681,6 +681,7 @@ public class MainUI extends javax.swing.JFrame {
 
             String plan = tfPlan.getText().trim();
             String unit = tfUnit.getText().trim();
+
             toBet(plan, unit);
         } catch (Exception e) {
             e.printStackTrace();
@@ -690,7 +691,25 @@ public class MainUI extends javax.swing.JFrame {
     /**
      * 下注
      */
-    public void toBet(String plan, String unit) {
+    public synchronized void toBet(String plan, String unit) {
+        String gameNo = lbCurrentPeriod.getText().trim();
+        if (betCacheProvider.containsKey(gameNo)){
+            logger.info("[{}]期已经下注, 取消本次提交...", gameNo);
+            return;
+        }
+
+        int balance = Integer.parseInt(lbMoney.getText().trim());
+        int total = 5 * Integer.valueOf(unit);
+        if (balance > total){
+        }else {
+            logger.warn("余额不足，无法下注...");
+            if (autoBet){
+                autoBet = false;
+            }
+
+            return;
+        }
+
         Map map = (Map) agentCacheProvider.get("XYFT");
         Map oddMap = (Map) map.get("odds");
 
@@ -720,7 +739,7 @@ public class MainUI extends javax.swing.JFrame {
             lbSumMoney.setText("0");
 
             int sum = noArr.length * Integer.parseInt(unit);
-            String gameNo = betReturn.getPeriod();
+            gameNo = betReturn.getPeriod();
 
             BetRecord record = new BetRecord();
             record.setPeriod(gameNo);
@@ -731,6 +750,7 @@ public class MainUI extends javax.swing.JFrame {
             record.setDetail(bets);
             record.setDatetime(System.currentTimeMillis());
 
+            logger.info("下注成功[{}]...", gameNo);
             betCacheProvider.put(gameNo, record);
         }
     }
