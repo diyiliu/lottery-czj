@@ -139,23 +139,11 @@ public class MainUI extends javax.swing.JFrame {
         btnAuto.addActionListener(actionEvent -> {
             String text = btnAuto.getText().trim();
             if (text.equals("自动")) {
-                autoBet = true;
-                btnAuto.setText("停止");
 
-                tfPlan.setEditable(false);
-                tfUnit.setEditable(false);
-
-                int sum = 5 * Integer.valueOf(tfUnit.getText().trim());
-                lbSumMoney.setText(String.valueOf(sum));
-                btnSubmit.setEnabled(false);
+                onAuto();
             } else {
-                autoBet = false;
-                btnAuto.setText("自动");
 
-                tfPlan.setEditable(true);
-                tfUnit.setEditable(true);
-                lbSumMoney.setText("0");
-                btnSubmit.setEnabled(true);
+                shutAuto();
             }
         });
     }
@@ -649,7 +637,7 @@ public class MainUI extends javax.swing.JFrame {
         } else {
             lbStatus.setText("关盘");
             if (autoBet) {
-                autoBet = false;
+                shutAuto();
             }
         }
 
@@ -710,7 +698,7 @@ public class MainUI extends javax.swing.JFrame {
         if (total < 1 || balance < total) {
             logger.warn("余额不足，无法下注...");
             if (autoBet) {
-                autoBet = false;
+                shutAuto();
             }
 
             return;
@@ -753,6 +741,28 @@ public class MainUI extends javax.swing.JFrame {
             logger.info("下注成功! 第[{}]期, 金额[{}]...", gameNo, total);
             betCacheProvider.put(gameNo, record);
         }
+    }
+
+    private void onAuto(){
+        autoBet = true;
+        btnAuto.setText("停止");
+
+        tfPlan.setEditable(false);
+        tfUnit.setEditable(false);
+
+        int sum = 5 * Integer.valueOf(tfUnit.getText().trim());
+        lbSumMoney.setText(String.valueOf(sum));
+        btnSubmit.setEnabled(false);
+    }
+
+    private void shutAuto(){
+        autoBet = false;
+        btnAuto.setText("自动");
+
+        tfPlan.setEditable(true);
+        tfUnit.setEditable(true);
+        lbSumMoney.setText("0");
+        btnSubmit.setEnabled(true);
     }
 
     private String sumToday() {
