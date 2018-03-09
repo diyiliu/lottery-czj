@@ -646,6 +646,9 @@ public class MainUI extends javax.swing.JFrame {
             }
         } else {
             lbStatus.setText("关盘");
+            if (autoBet){
+                autoBet = false;
+            }
         }
 
         //logger.info("更新数据...");
