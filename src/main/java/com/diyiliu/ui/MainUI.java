@@ -635,9 +635,11 @@ public class MainUI extends javax.swing.JFrame {
         if ("BETTING".equals(status)) {
             if (gap > 30) {
                 lbStatus.setText("下注");
-                if (autoBet && !betCacheProvider.containsKey(gameNo)) {
-
-                    toAutoBet();
+                if (autoBet) {
+                    gameNo = lbCurrentPeriod.getText().trim();
+                    if (!betCacheProvider.containsKey(gameNo)) {
+                        toAutoBet();
+                    }
                 }
             } else if (gap < 3) {
                 lbStatus.setText("封盘");
