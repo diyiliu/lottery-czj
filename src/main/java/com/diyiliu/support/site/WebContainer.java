@@ -375,8 +375,8 @@ public class WebContainer {
         if (containerMap.containsKey("queryReportDetail")) {
 
             long last = (long) containerMap.get("queryReportDetail");
-            // 小于3分钟间隔
-            if (now - last < 3 * 60 * 1000) {
+            // 小于30秒间隔
+            if (now - last < 30 * 1000) {
 
                 return null;
             }
@@ -393,10 +393,9 @@ public class WebContainer {
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         Calendar calendar = Calendar.getInstance();
-
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         if (hour < 12) {
-            calendar.add(Calendar.HOUR_OF_DAY, -1);
+            calendar.add(Calendar.DAY_OF_MONTH, -1);
         }
 
         MultiValueMap paramMap = new LinkedMultiValueMap();

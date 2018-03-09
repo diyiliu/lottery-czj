@@ -693,28 +693,26 @@ public class MainUI extends javax.swing.JFrame {
      */
     public synchronized void toBet(String plan, String unit) {
         String gameNo = lbCurrentPeriod.getText().trim();
-        if (betCacheProvider.containsKey(gameNo)){
+        if (betCacheProvider.containsKey(gameNo)) {
             logger.info("[{}]期已经下注, 取消本次提交...", gameNo);
-            return;
-        }
-
-        int balance = Integer.parseInt(lbMoney.getText().trim());
-        int total = 5 * Integer.valueOf(unit);
-        if (balance > total){
-        }else {
-            logger.warn("余额不足，无法下注...");
-            if (autoBet){
-                autoBet = false;
-            }
-
             return;
         }
 
         Map map = (Map) agentCacheProvider.get("XYFT");
         Map oddMap = (Map) map.get("odds");
-
         Map odd = (Map) oddMap.get("BALL_1");
         String[] noArr = plan.split(" ");
+
+        Double balance = Double.parseDouble(lbMoney.getText().trim());
+        int total = noArr.length * Integer.valueOf(unit);
+        if (total < 1 || balance < total) {
+            logger.warn("余额不足，无法下注...");
+            if (autoBet) {
+                autoBet = false;
+            }
+
+            return;
+        }
 
         List<Integer> nos = new ArrayList();
         List bets = new ArrayList();
@@ -750,7 +748,7 @@ public class MainUI extends javax.swing.JFrame {
             record.setDetail(bets);
             record.setDatetime(System.currentTimeMillis());
 
-            logger.info("下注成功[{}]...", gameNo);
+            logger.info("下注成功! 第[{}]期, 金额[{}]...", gameNo, total);
             betCacheProvider.put(gameNo, record);
         }
     }

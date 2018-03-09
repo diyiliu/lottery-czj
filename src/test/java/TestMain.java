@@ -7,6 +7,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.KeyEvent;
+import java.util.Calendar;
 
 /**
  * Description: TestMain
@@ -24,6 +25,17 @@ public class TestMain {
 
             System.out.println(info.getName());
         }
+    }
+
+    @Test
+    public void test1() {
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        if (hour < 12) {
+            calendar.add(Calendar.DAY_OF_MONTH, -1);
+        }
+
+        System.out.println(calendar.getTime());
     }
 
     @Test
