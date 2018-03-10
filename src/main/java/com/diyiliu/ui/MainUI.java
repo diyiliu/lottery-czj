@@ -671,7 +671,9 @@ public class MainUI extends javax.swing.JFrame {
                 logger.error("自动下注失败，无法获取助赢计划!");
                 return;
             }
+
             tfPlan.setText(winPlan);
+            calcMoney();
 
             String plan = tfPlan.getText().trim();
             String unit = tfUnit.getText().trim();
