@@ -59,8 +59,8 @@ public class HelpWinUtil {
 
                    // 清除剪切板内容
                    sysClip = Toolkit.getDefaultToolkit().getSystemClipboard();
-                   Transferable tText = new StringSelection("");
-                   sysClip.setContents(tText, null);
+                   clipTf = new StringSelection("");
+                   sysClip.setContents(clipTf, null);
                }
            }
        }
