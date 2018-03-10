@@ -6,6 +6,7 @@ import com.sun.jna.platform.win32.WinDef;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.KeyEvent;
 
@@ -55,6 +56,11 @@ public class HelpWinUtil {
                // 检查内容是否是文本类型
                if (clipTf.isDataFlavorSupported(DataFlavor.stringFlavor)) {
                    plan = (String) clipTf.getTransferData(DataFlavor.stringFlavor);
+
+                   // 清除剪切板内容
+                   sysClip = Toolkit.getDefaultToolkit().getSystemClipboard();
+                   Transferable tText = new StringSelection("");
+                   sysClip.setContents(tText, null);
                }
            }
        }

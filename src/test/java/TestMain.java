@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.KeyEvent;
 import java.util.Calendar;
@@ -76,6 +77,11 @@ public class TestMain {
                 if (clipTf.isDataFlavorSupported(DataFlavor.stringFlavor)) {
                     String str = (String) clipTf.getTransferData(DataFlavor.stringFlavor);
                     System.out.println(str);
+
+                    // 清除剪切板内容
+                    sysClip = Toolkit.getDefaultToolkit().getSystemClipboard();
+                    Transferable tText = new StringSelection("");
+                    sysClip.setContents(tText, null);
                 }
             }
         }
