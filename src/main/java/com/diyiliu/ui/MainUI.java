@@ -606,7 +606,7 @@ public class MainUI extends javax.swing.JFrame {
                     lbTodayWin.setText(today);
                 }
 
-                // 自动下注
+                // 开奖后自动下注
                 if (autoBet) {
                     toAutoBet();
                 }
@@ -618,21 +618,25 @@ public class MainUI extends javax.swing.JFrame {
         int gameTime = (int) detail.get("gameTime");
         int closeTime = (int) detail.get("closeTime");
         int gap = gameTime - closeTime;
+        //logger.info("gameTime: {}, closeTime： {}", gameTime, closeTime);
 
         String status = (String) detail.get("gameStatus");
         if ("BETTING".equals(status)) {
             if (gap > 30) {
                 lbStatus.setText("下注");
-                if (autoBet) {
-                    gameNo = lbCurrentPeriod.getText().trim();
-                    if (!betCacheProvider.containsKey(gameNo)) {
-                        toAutoBet();
-                    }
-                }
             } else if (gap < 3) {
                 lbStatus.setText("封盘");
             } else {
                 lbStatus.setText("临界");
+            }
+
+            // 补偿自动下注
+            if (autoBet) {
+                if (gap < 60) {
+                    if (!betCacheProvider.containsKey(gameNo)) {
+                        toAutoBet();
+                    }
+                }
             }
         } else {
             lbStatus.setText("关盘");
@@ -672,7 +676,14 @@ public class MainUI extends javax.swing.JFrame {
             String plan = tfPlan.getText().trim();
             String unit = tfUnit.getText().trim();
 
-            toBet(plan, unit);
+            java.awt.EventQueue.invokeLater(() -> {
+                try {
+                    Thread.sleep(3000);
+                    toBet(plan, unit);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -743,7 +754,7 @@ public class MainUI extends javax.swing.JFrame {
         }
     }
 
-    private void onAuto(){
+    private void onAuto() {
         autoBet = true;
         btnAuto.setText("停止");
 
@@ -755,7 +766,7 @@ public class MainUI extends javax.swing.JFrame {
         btnSubmit.setEnabled(false);
     }
 
-    private void shutAuto(){
+    private void shutAuto() {
         autoBet = false;
         btnAuto.setText("自动");
 
