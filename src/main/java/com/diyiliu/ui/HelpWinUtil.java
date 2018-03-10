@@ -45,7 +45,7 @@ public class HelpWinUtil {
            myRobot.mouseRelease(KeyEvent.BUTTON1_DOWN_MASK);
 
            // 移开
-           myRobot.setAutoDelay(200);
+           myRobot.setAutoDelay(50);
            myRobot.mouseMove(x, y - 40);
 
            // 获取剪切板中的内容

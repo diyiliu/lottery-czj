@@ -291,8 +291,7 @@ public class WebContainer {
 
                     return simplify;
                 } else {
-                    String message = (String) rsMap.get("message");
-                    logger.error("查询更新数据失败[{}]!", message);
+                    logger.error("查询更新数据失败[{}]!", result);
                 }
             } catch (IOException e) {
                 e.printStackTrace();

@@ -632,7 +632,7 @@ public class MainUI extends javax.swing.JFrame {
 
             // 补偿自动下注
             if (autoBet) {
-                if (gap < 60) {
+                if (gap < 60 && gap > 15) {
                     if (!betCacheProvider.containsKey(gameNo)) {
                         toAutoBet();
                     }
@@ -676,14 +676,21 @@ public class MainUI extends javax.swing.JFrame {
             String plan = tfPlan.getText().trim();
             String unit = tfUnit.getText().trim();
 
-            java.awt.EventQueue.invokeLater(() -> {
+            // 准备异步提交
+            new Thread(() -> {
                 try {
-                    Thread.sleep(3000);
-                    toBet(plan, unit);
+                    // 十秒取消下注时间
+                    Thread.sleep(10 * 1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            });
+
+                java.awt.EventQueue.invokeLater(() -> {
+                    if (autoBet) {
+                        toBet(plan, unit);
+                    }
+                });
+            }).start();
         } catch (Exception e) {
             e.printStackTrace();
         }
