@@ -64,6 +64,10 @@ public class TestMain {
             myRobot.setAutoDelay(200);
             myRobot.mouseRelease(KeyEvent.BUTTON1_DOWN_MASK);
 
+            // 移开
+            myRobot.setAutoDelay(200);
+            myRobot.mouseMove(x, y - 40);
+
             // 获取剪切板中的内容
             Clipboard sysClip = Toolkit.getDefaultToolkit().getSystemClipboard();
             Transferable clipTf = sysClip.getContents(null);
