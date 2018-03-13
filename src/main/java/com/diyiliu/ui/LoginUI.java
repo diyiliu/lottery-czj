@@ -31,8 +31,8 @@ public class LoginUI extends javax.swing.JFrame {
         initComponents();
         UIHelper.setCenter(this);
 
-        tfUsername.setText("dyl");
-        tfPassword.setText("ww151208");
+//        tfUsername.setText("dyl");
+//        tfPassword.setText("ww151208");
     }
 
     /**
