@@ -29,6 +29,8 @@ public class LoginUI extends javax.swing.JFrame {
      */
     public LoginUI() {
         initComponents();
+        ImageIcon icon = new ImageIcon(ClassLoader.getSystemResource("image/禁止.png"));
+        setIconImage(icon.getImage());
         UIHelper.setCenter(this);
 
 //        tfUsername.setText("dyl");

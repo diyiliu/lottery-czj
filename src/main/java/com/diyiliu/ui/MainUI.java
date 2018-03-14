@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
+import javax.swing.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -59,6 +60,8 @@ public class MainUI extends javax.swing.JFrame {
     public MainUI(WebContainer webContainer) {
         UIHelper.beautify(Constant.LOOK_STYLE);
         this.webContainer = webContainer;
+        ImageIcon icon = new ImageIcon(ClassLoader.getSystemResource("image/禁止.png"));
+        setIconImage(icon.getImage());
         initComponents();
         UIHelper.setCenter(this);
 
